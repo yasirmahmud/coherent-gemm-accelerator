@@ -28,7 +28,38 @@ the corresponding values are 60,962,000 versus 60,673,000 and 70,877,000
 versus 70,042,000 ticks. Program startup and setup dilute the single-call
 whole-program gain.
 
-## How to audit the numbers
+## Gate 3 addendum: N=16 (exploratory, not in the validated set)
+
+Added 2026-09-26 as a first Gate 3 data point (`docs/NEXT_STEPS.md`: "Try
+additional valid tile widths and input sizes"). **Not** run through
+`scripts/run.sh`, which intentionally restricts to the two validated sizes
+("Validated sizes are 24 and 32" — new sizes need their own correctness
+check, per `docs/BUILD.md`); run directly via `scripts/run_inside.sh 16
+{full,invocation,roi}` instead, then hand-verified using the exact same
+formulas as `scripts/summarize.py`. **Not** included in
+`results/validated_summary.csv` or that script's output — it still hardcodes
+`for n in (24, 32)`. Raw results live at
+`results/{fair,invocation,roi}_results/{base,tiled4}_n16/`, same layout as
+N=24/32.
+
+All the same checks passed: full-output CPU and accelerator checks (0
+mismatches, both kernels), ROI checksums agree across all four runs
+(checksum 8), accelerator-host instruction counts match between variants
+(15,466).
+
+| N | Base cycles | Four-column cycles | Cycle reduction | Base offload ticks | Four-column offload ticks | Offload reduction | Whole-program reduction |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 16 | 765 | 575 | 24.84% | 2,016,000 | 1,826,000 | 9.43% | 0.45% |
+
+Area: 1.1926 million µm² (base) vs 1.20335 million µm² (four-column) — a
+**0.90% increase**, much smaller than N=32's 27.7%. Cost/benefit at this size
+looks different from N=24/32: the four-column accelerator is only 0.957x the
+speed of an OoO CPU running the *same* four-column kernel (i.e. slightly
+*slower* than its own CPU comparator) — versus 1.173x at N=24 and 1.524x at
+N=32. Reported as-is; a negative/mixed result at one size doesn't invalidate
+the positive results at the other two, but it does mean "the extension wins"
+is size-dependent and should be stated that way in any report, not
+generalized from N=24/32 alone.
 
 Run `python3 scripts/summarize.py`; it derives
 [`validated_summary.csv`](../results/validated_summary.csv) from the raw logs

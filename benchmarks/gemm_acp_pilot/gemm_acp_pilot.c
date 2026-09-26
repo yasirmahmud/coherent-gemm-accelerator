@@ -55,15 +55,11 @@ int main(void) {
 #endif
   }
 #else
-#ifdef LLVM_TRACE
-  gemm_kernel(A, B, C);
-#else
   for (int rep = 0; rep < REPS; rep++) {
     if (REPS > 1)
       A[rep % (N * N)] += 1;
     gemm_kernel(A, B, C);
   }
-#endif
 #endif
 
   int failures = 0;

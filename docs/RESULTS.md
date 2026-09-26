@@ -49,12 +49,34 @@ The N=32 Aladdin area report increased from 1.247 to 1.592 million µm²
 reproduced, so the present area data should be treated as exploratory. Power
 has not been validated.
 
-The repeated-input diagnostic changed A on the CPU between invocations. At
-N=24 the accelerator variants each had 19 full-output mismatches, while the
-CPU variants passed. Raw logs are in `results/diagnostics/repeated_input_n24/`.
-This indicates a trace-reuse/modeling limitation and prevents a verified claim
-that CPU-updated input reaches the accelerator correctly across repeated
-calls. Only single-invocation, fixed-trace data is reported as valid timing.
+**Update — Gate 1 dynamic-input failure root-caused and fixed.** The
+repeated-input diagnostic originally changed A on the CPU between
+invocations and found, at N=24, 19 full-output mismatches on both
+accelerator variants while the CPU variants passed (raw logs in
+`results/diagnostics/repeated_input_n24/`, kept as historical evidence). The
+cause was a trace/harness mismatch, not a coherence bug: the `LLVM_TRACE`
+build path in `benchmarks/*/​*.c` (used to generate `dynamic_trace.gz`) called
+`gemm_kernel()` exactly once regardless of `REPS`, while the simulated
+`GEM5_HARNESS` path called `invokeAcceleratorAndBlock()` `REPS` times against
+CPU-modified input. On invocation 2+, Aladdin replayed a trace with no
+remaining data ("Reached end of trace." with no new DDDG), so the
+accelerator did zero work and the stale invocation-1 output was compared
+against a CPU reference computed on the updated input — arithmetically this
+explains the exact 19/24 mismatch count (only the row touched by the
+single-element input change differs, minus the 5 columns where that row's
+multiplier happens to be zero). Fixed by making the `LLVM_TRACE` path loop
+`REPS` times with the same input mutation as the harness. Verified with a
+REPS=2, N=24 repro for both kernels: invocation 2 now produces a full DDDG
+(matching invocation 1's node count) and `GEMM passed: 0 mismatches` for both
+accelerator and CPU variants (`results/diagnostics/repeated_input_n24_fixed/`).
+The fix is a no-op for `REPS=1` (the default, used by every published
+N=24/N=32 result above): the loop body is unchanged when `REPS=1` and the
+input-mutation branch is gated on `REPS > 1`; confirmed by rebuilding N=24
+`full` after the fix and diffing every simulated stat (excluding host
+wall-clock fields) against a pre-fix rebuild on the same host — bit-identical.
+This resolves Gate 1 for the fixed-trace-plus-repeat-invocation case tested
+here; broader dynamic-input scenarios (e.g. input changing mid-computation,
+not just between calls) are still out of scope. See `docs/NEXT_STEPS.md`.
 
 The pilot has two N values and deterministic inputs. It establishes a
 reproducible positive result in the model; it does not establish generality,

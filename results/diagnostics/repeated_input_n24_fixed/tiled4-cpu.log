@@ -1,0 +1,23 @@
+gem5 Simulator System.  http://gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 compiled Sep 26 2026 11:26:41
+gem5 started Sep 26 2026 12:49:19
+gem5 executing on 25250a2b7343, pid 11
+command line: /worksrc/build/X86/gem5.opt --outdir=/project/.session/gate1-repro-tiled4/m5out-cpu /worksrc/configs/example/se.py --ruby --num-cpus=1 --num-l2caches=1 --num-dirs=1 --cpu-type=DerivO3CPU --mem-size=1GB --mem-type=DDR3_1600_8x8 --sys-clock=1GHz --ruby-clock=1GHz --cacheline_size=64 -c /worksrc/src/aladdin/integration-test/with-cpu/gate1_repro_tiled4_n24/gemm_tiled4-gem5
+
+info: Standard input is not a terminal, disabling listeners.
+Global frequency set at 1000000000000 ticks per second
+warn: DRAM device capacity (8192 Mbytes) does not match the address range assigned (1024 Mbytes)
+warn: Sockets disabled, not accepting gdb connections
+**** REAL SIMULATION ****
+info: Entering event queue @ 0.  Starting simulation...
+warn: Replacement policy updates recently became the responsibility of SLICC state machines. Make sure to setMRU() near callbacks in .sm files!
+info: Increasing stack size by one page.
+warn: ignoring syscall access(...)
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+GEMM passed: 0 mismatches
+Exiting @ tick 113907000 because exiting with last active thread context

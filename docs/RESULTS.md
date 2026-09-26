@@ -28,24 +28,24 @@ the corresponding values are 60,962,000 versus 60,673,000 and 70,877,000
 versus 70,042,000 ticks. Program startup and setup dilute the single-call
 whole-program gain.
 
-## Gate 3 addendum: N=16 (exploratory, not in the validated set)
+## Gate 3 addendum: N=8 and N=16 (exploratory, not in the validated set)
 
-Added 2026-09-26 as a first Gate 3 data point (`docs/NEXT_STEPS.md`: "Try
+Added 2026-09-26 as the first Gate 3 data points (`docs/NEXT_STEPS.md`: "Try
 additional valid tile widths and input sizes"). **Not** run through
 `scripts/run.sh`, which intentionally restricts to the two validated sizes
 ("Validated sizes are 24 and 32" — new sizes need their own correctness
-check, per `docs/BUILD.md`); run directly via `scripts/run_inside.sh 16
-{full,invocation,roi}` instead. Summarized with
+check, per `docs/BUILD.md`); run directly via `scripts/run_inside.sh {8,16}
+all` instead. Summarized with
 [`scripts/explore_size.py`](../scripts/explore_size.py) — a parameterized
 version of `scripts/summarize.py`'s exact row logic for arbitrary N, kept as
 a separate script so the validated pipeline (`scripts/summarize.py`,
 `results/validated_summary.csv`, `scripts/plot_results.py`,
 `results/offload_comparison.png`) stays untouched and scoped to N=24/32
 only. Exploratory sizes go in `results/exploratory_summary.csv` instead
-(run `python3 scripts/explore_size.py 16` to regenerate, or add more sizes:
-`python3 scripts/explore_size.py 16 40`). Raw results live at
-`results/{fair,invocation,roi}_results/{base,tiled4}_n16/`, same layout as
-N=24/32.
+(run `python3 scripts/explore_size.py 8 16` to regenerate, or add more
+sizes: `python3 scripts/explore_size.py 8 16 40`). Raw results live at
+`results/{fair,invocation,roi}_results/{base,tiled4}_n{8,16}/`, same layout
+as N=24/32.
 
 ![Offload intervals including exploratory sizes](../results/offload_comparison_exploratory.png)
 
@@ -53,24 +53,37 @@ N=24/32.
 reads both CSVs; separate from the validated-only
 `results/offload_comparison.png`.)
 
-All the same checks passed: full-output CPU and accelerator checks (0
-mismatches, both kernels), ROI checksums agree across all four runs
-(checksum 8), accelerator-host instruction counts match between variants
-(15,466).
+All the same checks passed at both sizes: full-output CPU and accelerator
+checks (0 mismatches, both kernels), ROI checksums agree across all four
+runs, accelerator-host instruction counts match between variants.
 
-| N | Base cycles | Four-column cycles | Cycle reduction | Base offload ticks | Four-column offload ticks | Offload reduction | Whole-program reduction |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 16 | 765 | 575 | 24.84% | 2,016,000 | 1,826,000 | 9.43% | 0.45% |
+| N | Base cycles | Four-column cycles | Cycle reduction | Base offload ticks | Four-column offload ticks | Offload reduction | Whole-program reduction | Four-col vs same-kernel CPU |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 8 | 276 | 250 | 9.42% | 1,370,000 | 1,344,000 | 1.90% | 0.00% | 0.869x |
+| 16 | 765 | 575 | 24.84% | 2,016,000 | 1,826,000 | 9.43% | 0.45% | 0.957x |
+| 24 (validated) | 1,452 | 1,133 | 21.97% | 2,680,000 | 2,361,000 | 11.90% | 0.47% | 1.173x |
+| 32 (validated) | 2,827 | 1,984 | 29.82% | 4,132,000 | 3,200,000 | 22.56% | 1.18% | 1.524x |
 
-Area: 1.1926 million µm² (base) vs 1.20335 million µm² (four-column) — a
-**0.90% increase**, much smaller than N=32's 27.7%. Cost/benefit at this size
-looks different from N=24/32: the four-column accelerator is only 0.957x the
-speed of an OoO CPU running the *same* four-column kernel (i.e. slightly
-*slower* than its own CPU comparator) — versus 1.173x at N=24 and 1.524x at
-N=32. Reported as-is; a negative/mixed result at one size doesn't invalidate
-the positive results at the other two, but it does mean "the extension wins"
-is size-dependent and should be stated that way in any report, not
-generalized from N=24/32 alone.
+Offload-interval reduction is cleanly monotonic across all four sizes
+(1.9% → 9.4% → 11.9% → 22.6%), but cycle reduction and the CPU-relative
+comparison are **not**: N=16 (24.84%, 0.957x) beats N=24 (21.97%, 1.173x) on
+raw cycle reduction while losing on the CPU-relative metric, and N=8 is
+weak on every metric (9.42% cycles, 1.90% offload, exactly 0.00%
+whole-program — `base_accel_ticks` and `tiled_accel_ticks` are tick-for-tick
+identical, 48,694,000 both). At N=8, area even decreases very slightly for
+the four-column variant (1,004,980 → 1,003,450 µm², −0.15%) instead of
+growing. Read together: the four-column reuse benefit is genuinely
+size-dependent, not a clean scaling trend, and is weak-to-negative at small
+N — most plausibly because fixed per-invocation overhead (host wake-up,
+queue/cache warm-up, program startup) dominates when there's little actual
+work to amortize it over. This should be stated explicitly in any report,
+not generalized from N=24/32 alone as if the benefit only grows with size.
+
+Area: at N=16, 1.1926 million µm² (base) vs 1.20335 million µm² (four-column)
+— a 0.90% increase, much smaller than N=32's 27.7%; area growth is not
+monotonic in N either.
+
+## How to audit the numbers
 
 Run `python3 scripts/summarize.py`; it derives
 [`validated_summary.csv`](../results/validated_summary.csv) from the raw logs

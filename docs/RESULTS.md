@@ -123,6 +123,35 @@ Gate 2/Gate 4. This is a single N; whether the diminishing-returns shape
 holds at other N (e.g. does tile-width 8 continue the pattern, or does it
 invert like N=8 did in the size sweep?) is unexplored.
 
+**Queue/cache traffic** (Gate 3 in `docs/NEXT_STEPS.md` explicitly asks for
+this, not covered above). From each accelerator datapath's gem5 stats
+(`system.gemm_*_datapath.*` in the fair-stage `m5out-accel`/`m5out-cache`
+`stats.txt`):
+
+| Tile width | dcache loads | dcache stores | TLB hits | TLB misses | TLB hit rate | Mean dcache access latency (ticks) |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 (base) | 72 | 576 | 648 | 64 | 0.9101 | 27,518.8 |
+| 2 | 72 | 576 | 648 | 64 | 0.9101 | 22,432.1 |
+| 4 | 72 | 576 | 648 | 64 | 0.9101 | 19,915.2 |
+
+Raw access **counts** (loads, stores, TLB hits/misses) are exactly identical
+across all three tile widths — expected, since total data volume moved
+(N×N matrices) doesn't change with tile width, only how it's grouped per
+accelerator call. What *does* change, monotonically, is the mean per-access
+dcache latency: 27,518.8 → 22,432.1 → 19,915.2 ticks as tile width goes
+1→2→4, tracking the same diminishing-returns shape as the cycle/offload
+numbers above. Read together with identical access counts, this says the
+four-column reuse doesn't reduce *how much* data moves — it reduces
+*contention/queueing delay per access*, most plausibly because reusing each
+loaded A value across more concurrent accumulators means fewer separate
+dependent memory-request chains competing for the same queue/port over the
+kernel's runtime.
+`total_acp_loads`/`total_acp_stores`/`cache_queue_reads`/`cache_queue_writes`
+are all 0 in every run here — this benchmark's `memory_type = cache`
+configuration routes accesses through the TLB+dcache path, not the separate
+ACP queue path, so those particular counters aren't populated for any tile
+width and shouldn't be read as "no queueing happened."
+
 ## How to audit the numbers
 
 Run `python3 scripts/summarize.py`; it derives

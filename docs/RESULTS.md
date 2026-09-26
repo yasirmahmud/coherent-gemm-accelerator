@@ -45,9 +45,36 @@ Ticks are gem5 simulation ticks, not wall-clock execution time.
 ## Cost and validity limits
 
 The N=32 Aladdin area report increased from 1.247 to 1.592 million µm²
-(27.7%). N=24 area reports varied across otherwise matched reruns while timing
-reproduced, so the present area data should be treated as exploratory. Power
-has not been validated.
+(27.7%).
+
+**Update — "N=24 varied across otherwise matched reruns" resolved: it did
+not.** Auditing every base_n24 area report on record shows `fair_results`,
+`invocation_results`, and the pre-fix repeated-input diagnostic (which only
+ever traced one real invocation, see below) all agree exactly: Total Area
+1.40134e+06 µm², FU Area 598362 µm². The only base_n24 area report that ever
+differed is `roi_results/base_n24` (1.33128e+06 µm²) — but that stage runs a
+genuinely different, shorter ROI-bounded trace and a checksum-only check,
+not a same-config rerun, so it was never a fair comparison. Same-stage,
+same-input reruns of the single-invocation (REPS=1) case are area-stable,
+including across independent from-scratch rebuilds on a different host (see
+`docs/VALIDATION.md`'s 2026-09-26 entry) — so the area numbers reported
+above for N=24/N=32 are not exploratory on repeatability grounds. Power has
+not been validated.
+
+**New, separate finding — area is not stable across repeated invocations
+within one run.** The Gate 1 fix (below) made a second real accelerator
+invocation possible for the first time. Comparing invocation 1 to invocation
+2 of the *same* kernel in the *same* gem5 process
+(`results/diagnostics/repeated_input_n24_fixed/`): MEM Area stays exactly
+constant (802977 µm² both times, both kernels), but FU Area jumps
+substantially — base_n24: 598362→832260 µm² (+39%); tiled4_n24:
+593769→695405 µm² (+17%). Mechanism not yet isolated (candidates: Aladdin's
+per-invocation resource-scheduling state, or the finite-queue patch's
+queue/state handling across repeated calls). This does not affect any
+number published above (all are REPS=1, single-invocation), but it means
+area is not yet a trustworthy metric for any future repeated-invocation or
+"dynamic" area study — that would need its own repeatability check before
+being reported.
 
 **Update — Gate 1 dynamic-input failure root-caused and fixed.** The
 repeated-input diagnostic originally changed A on the CPU between

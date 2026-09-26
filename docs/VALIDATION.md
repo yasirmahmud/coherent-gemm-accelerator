@@ -21,3 +21,30 @@ N=32 full, ROI, and invocation results are included and auditable.
 The repeated-input diagnostic is intentionally **not** a pass: accelerator
 outputs differ from the CPU reference after CPU-side input modification. See
 [RESULTS.md](RESULTS.md) and the diagnostic logs.
+
+## 2026-09-26 revalidation on a different host (rootless Podman, no Docker)
+
+Re-ran on a separate Linux server with no Docker daemon available, using
+rootless Podman as a drop-in engine for the same pinned image by digest (see
+`scripts/setup.sh`; no script changes were needed — Podman's CLI covers the
+`pull`/`volume create`/`run` calls used here).
+
+| Check | Outcome |
+| --- | --- |
+| `bash scripts/setup.sh` (Podman) | Passed: same pinned image/digest, patch applied, `build/X86/gem5.opt` compiled |
+| `bash scripts/run.sh 24 full`, run twice back-to-back, no rebuild between | Both passed (0 mismatches, both kernels); the two runs' simulated stats (`final_tick`, `sim_ticks`, all `system.cpu.*` counters) were **bit-identical** to each other, confirming this environment is internally deterministic |
+| Same run vs. the originally shipped `results/fair_results/{base,tiled4}_n24` in this repo | Functional correctness matched (0 mismatches both sides), but simulated timing/microarchitectural stats did **not** match bit-for-bit (e.g. `final_tick` 111480500 vs 111683500 for base_n24 CPU; branch-predictor counters also differed by small amounts). Only host-machine meta-stats (`host_seconds`, `host_inst_rate`, etc.) were expected/known to differ. |
+
+Read together, these two rows mean: the gap is not run-to-run flakiness on
+either side (each environment reproduces itself exactly) and is not a
+Docker-vs-Podman correctness issue (functional output still matches) — but a
+fresh from-scratch build+run on a different host does not currently
+reproduce the original's cycle-accurate numbers bit-for-bit. Root cause not
+yet isolated; candidates include guest-kernel-compilation sensitivity to
+build-host differences (core count, environment) rather than the container
+engine itself. This directly bears on Gate 2 (hardware-cost repeatability)
+and is worth resolving or explicitly scoping around before citing area/cycle
+numbers from a rebuild as directly comparable to the numbers already in this
+repo. No repo files were changed by this revalidation; the rebuilt results
+were discarded after comparison (see `claude_session_rasin.md`, gitignored,
+for the working notes).

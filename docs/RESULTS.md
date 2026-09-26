@@ -68,13 +68,31 @@ invocation possible for the first time. Comparing invocation 1 to invocation
 (`results/diagnostics/repeated_input_n24_fixed/`): MEM Area stays exactly
 constant (802977 µm² both times, both kernels), but FU Area jumps
 substantially — base_n24: 598362→832260 µm² (+39%); tiled4_n24:
-593769→695405 µm² (+17%). Mechanism not yet isolated (candidates: Aladdin's
-per-invocation resource-scheduling state, or the finite-queue patch's
-queue/state handling across repeated calls). This does not affect any
-number published above (all are REPS=1, single-invocation), but it means
-area is not yet a trustworthy metric for any future repeated-invocation or
-"dynamic" area study — that would need its own repeatability check before
-being reported.
+593769→695405 µm² (+17%).
+
+Traced this one level further in `src/aladdin/common/BaseDatapath.cpp`:
+`fu_area` is driven by per-function peak concurrent resource counts
+(`max_add`, `max_mul`, `max_reg`, ...), computed by `writePerCycleActivity()`
+from `func_max_activity` — a map that is freshly constructed and populated
+from scratch on every call (not a class member, not carried over from a
+prior invocation), so this is not a stale-accumulator bug. The peak
+concurrency itself genuinely differs between the two invocations' resource-
+constrained schedules, even though both invocations run the identical static
+loop nest. Leading hypothesis (not yet confirmed): Aladdin's dynamic trace
+and DDDG node numbering is one continuous count across the whole run, not
+reset per invocation — so invocation 2's nodes carry a different (larger)
+absolute ID range than invocation 1's structurally-identical nodes. If the
+scheduler's ready-list tie-breaking or partition/bank assignment depends on
+absolute node ID (directly, or via a hash/modulo), an isomorphic DDDG could
+still legitimately schedule differently on invocation 2, producing a
+different concurrency peak without any bug in the accounting itself. Not yet
+confirmed against the actual scheduler code (`Scheduler`/`schedule()` in the
+same directory) — that would be the next step for anyone picking this up.
+This does not affect any number published above (all are REPS=1,
+single-invocation), but it means area is not yet a trustworthy metric for
+any future repeated-invocation or "dynamic" area study — that would need its
+own repeatability check, and likely a fix or normalization for the node-
+numbering effect, before being reported.
 
 **Update — Gate 1 dynamic-input failure root-caused and fixed.** The
 repeated-input diagnostic originally changed A on the CPU between

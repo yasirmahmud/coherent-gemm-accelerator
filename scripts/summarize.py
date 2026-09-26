@@ -137,7 +137,7 @@ for n in (24, 32):
 
 output = ROOT / "validated_summary.csv"
 with output.open("w", newline="") as file:
-    writer = csv.DictWriter(file, fieldnames=rows[0].keys())
+    writer = csv.DictWriter(file, fieldnames=rows[0].keys(), lineterminator="\n")
     writer.writeheader()
     writer.writerows(rows)
 print(output)

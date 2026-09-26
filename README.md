@@ -32,14 +32,17 @@ python3 scripts/summarize.py
 
 `run.sh` writes logs and `stats.txt` into `results/` and validates the expected
 correctness markers. `all` performs full output checks, performance ROI runs,
-and segmented invocation timing for both kernels. Runs can take several
-minutes each; initial gem5 compilation can take much longer. The last command
+and segmented invocation timing for both kernels. N=32 `all` can take tens of
+minutes because Aladdin schedules a large graph for each stage; the initial
+gem5 compilation can also take a while. The last command
 checks the raw evidence and rewrites `results/validated_summary.csv`. For a
 shorter smoke test, use `bash scripts/run.sh 24 full`. Windows users should run
 these commands **inside WSL**, from the cloned repository's `/mnt/...` path.
 
 See [BUILD.md](docs/BUILD.md) for exact versions, individual stages,
-troubleshooting, and measurement boundaries.
+troubleshooting, and measurement boundaries. The
+[validation record](docs/VALIDATION.md) distinguishes clean-build checks from
+previously saved N=32 evidence.
 
 ## 2. What has been done
 

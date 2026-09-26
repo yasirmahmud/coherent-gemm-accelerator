@@ -44,6 +44,9 @@ The `roi` stage uses a lightweight checksum after GEMM so the expensive
 reference check does not dominate timing. The `invocation` stage resets gem5
 stats immediately before the accelerator call and dumps after host return.
 `run_inside.sh` validates output markers before accepting each stage.
+At N=32, `all` can take tens of minutes because the legacy Aladdin scheduler
+rebuilds a large datapath graph in each stage. Start with N=24 for a smoke
+test.
 
 Each run recreates the trace for the selected kernel and N in the Docker
 volume, then compiles the guest programs and writes gem5 output under

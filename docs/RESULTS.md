@@ -35,12 +35,23 @@ additional valid tile widths and input sizes"). **Not** run through
 `scripts/run.sh`, which intentionally restricts to the two validated sizes
 ("Validated sizes are 24 and 32" — new sizes need their own correctness
 check, per `docs/BUILD.md`); run directly via `scripts/run_inside.sh 16
-{full,invocation,roi}` instead, then hand-verified using the exact same
-formulas as `scripts/summarize.py`. **Not** included in
-`results/validated_summary.csv` or that script's output — it still hardcodes
-`for n in (24, 32)`. Raw results live at
+{full,invocation,roi}` instead. Summarized with
+[`scripts/explore_size.py`](../scripts/explore_size.py) — a parameterized
+version of `scripts/summarize.py`'s exact row logic for arbitrary N, kept as
+a separate script so the validated pipeline (`scripts/summarize.py`,
+`results/validated_summary.csv`, `scripts/plot_results.py`,
+`results/offload_comparison.png`) stays untouched and scoped to N=24/32
+only. Exploratory sizes go in `results/exploratory_summary.csv` instead
+(run `python3 scripts/explore_size.py 16` to regenerate, or add more sizes:
+`python3 scripts/explore_size.py 16 40`). Raw results live at
 `results/{fair,invocation,roi}_results/{base,tiled4}_n16/`, same layout as
 N=24/32.
+
+![Offload intervals including exploratory sizes](../results/offload_comparison_exploratory.png)
+
+(Generate/refresh with `python3 scripts/plot_results_exploratory.py`, which
+reads both CSVs; separate from the validated-only
+`results/offload_comparison.png`.)
 
 All the same checks passed: full-output CPU and accelerator checks (0
 mismatches, both kernels), ROI checksums agree across all four runs

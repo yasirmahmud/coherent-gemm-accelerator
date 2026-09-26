@@ -1,0 +1,2 @@
+n,checksum,full_check_zero_mismatches,accel_host_insts,base_accel_cycles,tiled_accel_cycles,accel_cycle_reduction_pct,base_completion_ticks,tiled_completion_ticks,base_offload_ticks,tiled_offload_ticks,offload_time_reduction_pct,base_accel_ticks,tiled_accel_ticks,whole_program_reduction_vs_base_pct,base_cpu_ticks,tiled_cpu_ticks,tiled_speedup_vs_same_kernel_cpu,base_area_um2,tiled_area_um2
+16,8,True,15466,765,575,24.837,1522000,1332000,2016000,1826000,9.425,54058000,53817000,0.446,52648000,51524000,0.957,1192600.0,1203350.0

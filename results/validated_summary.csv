@@ -1,0 +1,3 @@
+n,checksum,full_check_zero_mismatches,accel_host_insts,base_accel_cycles,tiled_accel_cycles,accel_cycle_reduction_pct,base_completion_ticks,tiled_completion_ticks,base_offload_ticks,tiled_offload_ticks,offload_time_reduction_pct,base_accel_ticks,tiled_accel_ticks,whole_program_reduction_vs_base_pct,base_cpu_ticks,tiled_cpu_ticks,tiled_speedup_vs_same_kernel_cpu,base_area_um2,tiled_area_um2
+24,-8,True,21600,1452,1133,21.97,2223000,1904000,2680000,2361000,11.903,60962000,60673000,0.474,70973000,71192000,1.173,1401340.0,1396750.0
+32,1,True,30046,2827,1984,29.82,3586000,2743000,4132000,3200000,22.556,70877000,70042000,1.178,106305000,106733000,1.524,1246960.0,1592240.0

@@ -1,0 +1,36 @@
+diff --git a/gem5/MemoryQueue.h b/gem5/MemoryQueue.h
+--- a/gem5/MemoryQueue.h
++++ b/gem5/MemoryQueue.h
+@@ -79,12 +79,7 @@ class MemoryQueue {
+   bool canIssue() { return bandwidth == 0 ? true : (issuedThisCycle < bandwidth); }
+ 
+   bool isFull() {
+-    if (ops.size() >= size) {
+-      warn("The memory queue becomes full. Capacity: %d, current size: %d.\n",
+-           size,
+-           ops.size());
+-    }
+-    return false;
++    return ops.size() >= size;
+   }
+ 
+   /* Returns true if the ops already contains an entry for this address. */
+diff --git a/gem5/HybridDatapath.cpp b/gem5/HybridDatapath.cpp
+--- a/gem5/HybridDatapath.cpp
++++ b/gem5/HybridDatapath.cpp
+@@ -665,5 +665,7 @@ MemoryQueueEntry* HybridDatapath::createAndQueueAcpEntry(
+   MemoryQueueEntry* entry = cache_queue.findMatch(vaddr, isLoad);
+   if (!entry) {
+     entry = cache_queue.allocateEntry(vaddr, size, isLoad);
++    if (!entry)
++      return nullptr;
+     entry->type = ACP;
+     if (use_acp_cache) {
+@@ -851,5 +853,7 @@ bool HybridDatapath::handleAcpMemoryOp(ExecNode* node) {
+     int size = mem_access->size;
+     MemoryQueueEntry* entry = createAndQueueAcpEntry(
+         vaddr, size, isLoad, node->get_array_label(), node_id);
++    if (!entry)
++      return false;
+     return updateAcpEntryStatus(entry, node);
+   } else {

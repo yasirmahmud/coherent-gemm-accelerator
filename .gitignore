@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.DS_Store
+*.tmp
+results/*_trace.sha256
+results/**/build.log
+results/**/config.json
+results/**/fs/

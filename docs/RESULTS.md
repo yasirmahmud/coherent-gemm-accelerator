@@ -83,6 +83,46 @@ Area: at N=16, 1.1926 million µm² (base) vs 1.20335 million µm² (four-column
 — a 0.90% increase, much smaller than N=32's 27.7%; area growth is not
 monotonic in N either.
 
+## Gate 3 addendum: tile-width ablation (N=24, exploratory)
+
+Added 2026-09-26, per the README's own "what to do next" #3: "include an
+ablation of output tile width." The N-sweep above confounds tile width with
+problem size (bigger N means both more reuse *and* more fixed overhead to
+amortize); this ablation holds N=24 fixed and only varies tile width (1, 2,
+4 output columns per inner-loop iteration), isolating the tiling effect
+cleanly. Added [`benchmarks/gemm_tiled2/`](../benchmarks/gemm_tiled2/) — a
+2-column variant, otherwise identical in structure and hardware config
+(`.cfg` files copied verbatim from `gemm_tiled4/`) to the existing 1-column
+base and 4-column extension. Not wired into `scripts/run.sh`'s two-variant
+loop (`base`/`tiled4` only); built and run manually via the same
+`make ... run-trace` / `gem5-accel`/`gem5-cpu` / `aladdin_se.py` invocations
+`scripts/run_inside.sh` uses, at N=24. Passed the same checks: 0 mismatches
+(accelerator and CPU), accelerator-host instruction count matches the other
+two variants exactly (21,600).
+
+| Tile width | Cycles | Cycle reduction vs. tile-1 | Offload ticks | Offload reduction vs. tile-1 | Area (µm²) | Area change vs. tile-1 | vs. same-kernel CPU |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 (base) | 1,452 | — | 2,680,000 | — | 1,401,340 | — | 1.000x (reference) |
+| 2 | 1,257 | 13.43% | 2,508,000 | 6.42% | 1,401,340 | 0.00% | 1.164x |
+| 4 | 1,133 | 21.97% | 2,361,000 | 11.90% | 1,396,750 | −0.33% | 1.173x |
+
+With N held fixed, the benefit is clean, monotonic, and shows textbook
+diminishing returns: cycle count drops by a smaller *relative* amount on
+each width-doubling (1,452→1,257 is −13.43%; 1,257→1,133 is a further
+−9.86%), consistent with a fixed per-inner-loop-iteration overhead being
+amortized across more accumulators each time, with less overhead left to
+amortize at each step. Area is flat: tile-width 2 costs exactly the same
+area as tile-width 1 (0.00% change — likely still within the same resource
+bucket the synthesis tool allocates), and even tile-width 4 costs *less*
+area than tile-width 1 here (−0.33%), sharply unlike N=32's 27.7% area
+growth for the same tile-width-4 kernel. Put together with the N-sweep
+above: area cost is driven far more by problem size (N) than by tile width
+in this design, at least across the widths and sizes tested so far — a
+useful, non-obvious distinction for framing the "hardware cost" question in
+Gate 2/Gate 4. This is a single N; whether the diminishing-returns shape
+holds at other N (e.g. does tile-width 8 continue the pattern, or does it
+invert like N=8 did in the size sweep?) is unexplored.
+
 ## How to audit the numbers
 
 Run `python3 scripts/summarize.py`; it derives

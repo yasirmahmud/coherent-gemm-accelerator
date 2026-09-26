@@ -29,13 +29,34 @@ design where re-tracing per call is impractical (e.g. very large/variable
 inputs) — if the course proposal wants a stronger "fully dynamic" claim,
 that gap should be stated explicitly rather than assumed closed.
 
-## Gate 2: hardware cost
+## Gate 2: hardware cost — partially resolved (2026-09-26)
 
-Repeat the N=24/N=32 area estimates under identical builds and inputs;
-identify why N=24 changed despite reproducible timing. Report area alongside
-offload latency. Add power only after its tool output has been checked for
-repeatability. A four-column design that only wins by excessive hardware
-cost is not a strong result.
+"Repeat the N=24/N=32 area estimates ... identify why N=24 changed despite
+reproducible timing": **it didn't, on closer audit.** Every true same-stage,
+same-input rerun of base_n24 on record (`fair_results`, `invocation_results`,
+the pre-fix repeated-input diagnostic, and an independent from-scratch
+rebuild on a different host) reports identical area. The only differing
+number came from `roi_results`, which runs a genuinely different (shorter,
+ROI-bounded) trace — comparing it to `fair`/`invocation` was never a fair
+same-config rerun. So area for the published REPS=1 N=24/N=32 numbers is not
+exploratory on repeatability grounds; see `docs/RESULTS.md` for the full
+audit.
+
+New, separate, still-open finding: area is *not* stable across repeated
+invocations of the same kernel within one gem5 run — FU Area grows
+substantially from invocation 1 to invocation 2 (base_n24: +39%, tiled4_n24:
++17%) while MEM Area stays constant (`results/diagnostics/repeated_input_n24_fixed/`).
+This only became visible once Gate 1's fix made a real second invocation
+possible, and does not affect any already-published number (all REPS=1).
+Before any future work reports an area number from a repeated-invocation or
+"dynamic" scenario, isolate this mechanism (candidates: Aladdin's
+per-invocation resource-scheduling state not resetting between calls, or the
+finite-queue patch's cross-call queue/state bookkeeping) and confirm it's
+either fixed or bounded.
+
+Add power only after its tool output has been checked for repeatability. A
+four-column design that only wins by excessive hardware cost is not a
+strong result.
 
 ## Gate 3: broader experiment
 

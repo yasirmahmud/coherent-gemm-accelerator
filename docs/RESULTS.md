@@ -286,6 +286,46 @@ trustworthy metrics for any future repeated-invocation or "dynamic" study —
 that would need its own repeatability check and a resolved mechanism before
 being reported.
 
+**Update (2026-09-27) — reusable REPS≥3 runner confirms the warm-state
+pattern, and a genuinely independent runtime mutation reveals the fix's
+real limit.** Built `scripts/run_repeated.sh` (parameterized: any variant,
+N, REPS, with per-call correctness checking — not just a final check — via
+a new `PER_CALL_CHECK` build macro) and `scripts/summarize_repeated.py`
+(per-call offload-interval parsing, generalizing `summarize.py`'s
+two-block logic to any number of calls).
+
+*Matched-mutation REPS=3, base_n24* (same predetermined mutation the trace
+was built with, `results/diagnostics/repeated_n24_reps3_base/`): 0
+mismatches, all 3 calls. Per-call Aladdin cycle count: **1452 → 628 → 628**
+— confirms the warm state is not a one-off invocation-2 quirk but a
+genuine steady state: call 2 is byte-identical to call 1 (same cycles,
+same Total Area 1.5478e+06 µm² both). Offload ticks: 2,736,000 → 1,261,000
+→ 1,108,000 — a large drop then a smaller one, consistent with warming up
+and leveling off. Note the warm-state cycle count here (628) differs from
+the earlier ad-hoc REPS=2 test's invocation-2 value (229) — same kernel,
+same N, different measurement setup (this run adds `--enable-stats-dump-
+and-resume`, `FAST_CHECK`, `PER_CALL_CHECK`). That gem5/measurement-
+harness sensitivity is itself a finding: the specific warm-state number is
+not yet a stable, citable quantity, even though "cold call 1, then a
+stable warm state" appears to be the real qualitative pattern.
+
+*Independent-mutation REPS=3, base_n24* (`--independent-mutation`: runtime
+applies a genuinely different index/delta pattern than the one baked into
+the trace — see `benchmarks/gemm_acp_pilot/gemm_acp_pilot.c`'s
+`INDEPENDENT_MUTATION` branch): **fails — 20, 24, and 19 mismatches on
+calls 0, 1, and 2 respectively** (`results/diagnostics/repeated_n24_reps3_base_independent/`).
+This directly tested, and disproves, a claim this doc previously made only
+as an untested prediction ("Aladdin's replay is structural, not value-
+dependent... should still produce a correct result if the fix
+generalizes"). It does not. Aladdin's trace replay is sensitive to the
+*specific values* recorded at trace time, not just to live memory contents
+at replay time — so the Gate 1 fix below is verified **only** for the case
+where the runtime mutation exactly matches the one the trace was built
+with. It is not a general "dynamic input" fix; it is a fix for the
+predetermined-and-matched-mutation case specifically. The misleading code
+comment predicting the opposite has been corrected in all three benchmark
+`.c` files.
+
 **Update — Gate 1 dynamic-input failure root-caused and fixed.** The
 repeated-input diagnostic originally changed A on the CPU between
 invocations and found, at N=24, 19 full-output mismatches on both

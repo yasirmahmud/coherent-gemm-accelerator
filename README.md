@@ -57,19 +57,40 @@ previously saved N=32 evidence.
   and saved raw logs/configurations for both N=24 and N=32.
 - Measured accelerator cycles, whole-program ticks, and reset-to-return
   offload ticks. `scripts/summarize.py` derives the CSV directly from logs.
-- Ran a repeated-invocation diagnostic with CPU-modified input. It **failed**
-  with 19 accelerator output mismatches at N=24, so dynamic input coherence is
-  **not established** by this package.
+- Ran a repeated-invocation diagnostic with CPU-modified input. It
+  originally **failed** with 19 accelerator output mismatches at N=24
+  (`results/diagnostics/repeated_input_n24/`, kept as historical evidence).
+  Root-caused to a trace/harness mismatch (the trace generator only ever
+  recorded one accelerator invocation, not `REPS`); fixed, and now passes
+  with 0 mismatches for both kernels at REPS=2
+  (`results/diagnostics/repeated_input_n24_fixed/`). This validates input
+  changing *between* discrete accelerator calls with a full retrace per
+  call, using a predetermined mutation known at trace time — not an
+  arbitrary runtime CPU write, and not input changing mid-invocation.
+  Invocation 2's *timing* (cycle count, area) is not yet understood — see
+  [RESULTS.md](docs/RESULTS.md) — and must not be read as a steady-state
+  per-call cost.
+- Added exploratory data beyond the validated N=24/N=32 pair: N=8 and N=16
+  (same correctness checks, kept separate from the validated pipeline), and
+  a tile-width-2 variant at N=24 for a controlled 1-vs-2-vs-4 ablation.
+  Findings are mixed, not uniformly positive: the four-column benefit is
+  size-dependent (weak-to-negative at N=8) and area cost tracks problem size
+  more than tile width. Full detail, corrected interpretations, and open
+  questions in [RESULTS.md](docs/RESULTS.md).
 
 ## 3. What to do next
 
-1. Fix or redesign tracing so repeated accelerator calls consume CPU-updated
-   input correctly. Gate any claim about dynamic coherence on a full output
-   check after each call.
-2. Investigate Aladdin area-report variation, then quantify area and power
-   costs against latency under identical settings.
-3. Expand to more matrix shapes or a representative inference kernel, include
-   an ablation of output tile width, and repeat/plot the comparisons.
+1. ~~Fix tracing so repeated accelerator calls consume CPU-updated input
+   correctly.~~ Done for the predetermined-mutation case (see above). Still
+   open: test an independent/unpredictable runtime mutation, and understand
+   invocation 2's cycle-count/area behavior before citing it as a per-call cost.
+2. Aladdin area-report variation: same-config single-invocation reruns are
+   confirmed repeatable, but the `roi` vs. `fair` stage MEM Area discrepancy
+   at N=24 (802,977 vs 732,920 µm², identical trace) remains genuinely
+   unresolved. Quantify area/power against latency only after this is closed.
+3. Expanded to N=8/N=16 and a tile-width-2 ablation at N=24 (above); still
+   open: tile-width ablation at other N, tile-width 8, larger N, or a
+   representative inference kernel.
 4. Write the final research report with the bottleneck, mechanism, cost,
    methodology, figures, explanation of results, and limitations.
 
@@ -96,6 +117,7 @@ Confirm the official proposal deadline and submission route on Canvas.
 | Path | Contents |
 | --- | --- |
 | `benchmarks/gemm_acp_pilot/` | One-column baseline C kernel and configs |
+| `benchmarks/gemm_tiled2/` | Two-column C kernel and matched configs (tile-width ablation) |
 | `benchmarks/gemm_tiled4/` | Four-column C kernel and matched configs |
 | `patches/` | Aladdin finite-queue/retry patch |
 | `scripts/` | Pinned setup, runs, and evidence validator |

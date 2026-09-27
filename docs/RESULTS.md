@@ -64,20 +64,31 @@ runs, accelerator-host instruction counts match between variants.
 | 24 (validated) | 1,452 | 1,133 | 21.97% | 2,680,000 | 2,361,000 | 11.90% | 0.47% | 1.173x |
 | 32 (validated) | 2,827 | 1,984 | 29.82% | 4,132,000 | 3,200,000 | 22.56% | 1.18% | 1.524x |
 
-Offload-interval reduction is cleanly monotonic across all four sizes
-(1.9% → 9.4% → 11.9% → 22.6%), but cycle reduction and the CPU-relative
-comparison are **not**: N=16 (24.84%, 0.957x) beats N=24 (21.97%, 1.173x) on
-raw cycle reduction while losing on the CPU-relative metric, and N=8 is
-weak on every metric (9.42% cycles, 1.90% offload, exactly 0.00%
-whole-program — `base_accel_ticks` and `tiled_accel_ticks` are tick-for-tick
-identical, 48,694,000 both). At N=8, area even decreases very slightly for
-the four-column variant (1,004,980 → 1,003,450 µm², −0.15%) instead of
+**Correction (2026-09-27):** offload-interval reduction is cleanly monotonic
+across all four sizes (1.9% → 9.4% → 11.9% → 22.6%). The **CPU-relative
+speedup column is also monotonically increasing** (0.869x → 0.957x →
+1.173x → 1.524x) — an earlier version of this doc incorrectly called this
+column non-monotonic too; it is not. What **is** non-monotonic is the raw
+*cycle-reduction percentage*: N=16 (24.84%) is numerically higher than N=24
+(21.97%), even though N=16's CPU-relative speedup (0.957x) is still lower
+than N=24's (1.173x) — cycle reduction and CPU-relative speedup are
+different metrics and can rank sizes differently; neither is "the" size
+trend on its own.
+
+N=8 is the weakest point: cycles improve (9.42% reduction) and offload
+improves (1.90% reduction), but whole-program time is unchanged (exactly
+0.00% — `base_accel_ticks` and `tiled_accel_ticks` are tick-for-tick
+identical, 48,694,000 both) and CPU-relative speedup is below 1x (0.869x,
+i.e. the four-column accelerator is slower than an OoO CPU running the same
+four-column kernel at this size). At N=8, area even decreases very slightly
+for the four-column variant (1,004,980 → 1,003,450 µm², −0.15%) instead of
 growing. Read together: the four-column reuse benefit is genuinely
-size-dependent, not a clean scaling trend, and is weak-to-negative at small
-N — most plausibly because fixed per-invocation overhead (host wake-up,
-queue/cache warm-up, program startup) dominates when there's little actual
-work to amortize it over. This should be stated explicitly in any report,
-not generalized from N=24/32 alone as if the benefit only grows with size.
+size-dependent, not a single clean scaling trend across every metric, and is
+weakest at small N — most plausibly because fixed per-invocation overhead
+(host wake-up, queue/cache warm-up, program startup) dominates when there's
+little actual work to amortize it over. This should be stated precisely in
+any report (which metric, at which size) rather than as a single blanket
+"benefit grows with size" claim.
 
 Area: at N=16, 1.1926 million µm² (base) vs 1.20335 million µm² (four-column)
 — a 0.90% increase, much smaller than N=32's 27.7%; area growth is not
@@ -100,9 +111,17 @@ loop (`base`/`tiled4` only); built and run manually via the same
 (accelerator and CPU), accelerator-host instruction count matches the other
 two variants exactly (21,600).
 
+**Correction (2026-09-27):** the tile-1 "vs. same-kernel CPU" value below was
+previously (incorrectly) shown as "1.000x (reference)" as if tile-1 were a
+trivial normalization point. It is an actual measured ratio like the other
+two rows (70,973,000 CPU ticks / 60,962,000 accelerator ticks = **1.164x**)
+and is corrected below. Do not read any row in this column as a fixed
+reference — every row is an independently measured same-kernel CPU
+comparison.
+
 | Tile width | Cycles | Cycle reduction vs. tile-1 | Offload ticks | Offload reduction vs. tile-1 | Area (µm²) | Area change vs. tile-1 | vs. same-kernel CPU |
 | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 1 (base) | 1,452 | — | 2,680,000 | — | 1,401,340 | — | 1.000x (reference) |
+| 1 (base) | 1,452 | — | 2,680,000 | — | 1,401,340 | — | 1.164x |
 | 2 | 1,257 | 13.43% | 2,508,000 | 6.42% | 1,401,340 | 0.00% | 1.164x |
 | 4 | 1,133 | 21.97% | 2,361,000 | 11.90% | 1,396,750 | −0.33% | 1.173x |
 
@@ -134,18 +153,23 @@ this, not covered above). From each accelerator datapath's gem5 stats
 | 2 | 72 | 576 | 648 | 64 | 0.9101 | 22,432.1 |
 | 4 | 72 | 576 | 648 | 64 | 0.9101 | 19,915.2 |
 
-Raw access **counts** (loads, stores, TLB hits/misses) are exactly identical
-across all three tile widths — expected, since total data volume moved
-(N×N matrices) doesn't change with tile width, only how it's grouped per
-accelerator call. What *does* change, monotonically, is the mean per-access
-dcache latency: 27,518.8 → 22,432.1 → 19,915.2 ticks as tile width goes
-1→2→4, tracking the same diminishing-returns shape as the cycle/offload
-numbers above. Read together with identical access counts, this says the
-four-column reuse doesn't reduce *how much* data moves — it reduces
-*contention/queueing delay per access*, most plausibly because reusing each
-loaded A value across more concurrent accumulators means fewer separate
-dependent memory-request chains competing for the same queue/port over the
-kernel's runtime.
+**Correction (2026-09-27): stated as an observation, not yet a verified
+causal explanation.** Raw access **counts** (loads, stores, TLB hits/misses,
+`total_dcache_loads`/`total_dcache_stores` as reported by Aladdin) are
+exactly identical across all three tile widths, and the mean per-access
+dcache latency drops monotonically: 27,518.8 → 22,432.1 → 19,915.2 ticks as
+tile width goes 1→2→4, tracking the same diminishing-returns shape as the
+cycle/offload numbers above. These two observations are solid. What is
+**not** yet verified is *why*: an earlier version of this doc asserted this
+means reuse "reduces contention per access, not data volume" as if that
+were confirmed. It is a plausible reading, not a demonstrated mechanism —
+the request-count fields checked so far are access counts, not raw byte
+counts, and no controlled instrumentation has isolated queueing/contention
+as the specific cause of the latency drop (as opposed to, say, a scheduling
+artifact of the kind discussed just above for the repeated-invocation FU
+Area/cycle findings). Treat "equal traffic, lower mean latency" as the
+finding, and "reduced contention" as a hypothesis for it, until byte counts
+and a specific causal mechanism are checked.
 `total_acp_loads`/`total_acp_stores`/`cache_queue_reads`/`cache_queue_writes`
 are all 0 in every run here — this benchmark's `memory_type = cache`
 configuration routes accesses through the TLB+dcache path, not the separate
@@ -171,28 +195,55 @@ Ticks are gem5 simulation ticks, not wall-clock execution time.
 The N=32 Aladdin area report increased from 1.247 to 1.592 million µm²
 (27.7%).
 
-**Update — "N=24 varied across otherwise matched reruns" resolved: it did
-not.** Auditing every base_n24 area report on record shows `fair_results`,
-`invocation_results`, and the pre-fix repeated-input diagnostic (which only
-ever traced one real invocation, see below) all agree exactly: Total Area
-1.40134e+06 µm², FU Area 598362 µm². The only base_n24 area report that ever
-differed is `roi_results/base_n24` (1.33128e+06 µm²) — but that stage runs a
-genuinely different, shorter ROI-bounded trace and a checksum-only check,
-not a same-config rerun, so it was never a fair comparison. Same-stage,
-same-input reruns of the single-invocation (REPS=1) case are area-stable,
-including across independent from-scratch rebuilds on a different host (see
-`docs/VALIDATION.md`'s 2026-09-26 entry) — so the area numbers reported
-above for N=24/N=32 are not exploratory on repeatability grounds. Power has
-not been validated.
+**Update — "N=24 varied across otherwise matched reruns" partially resolved,
+partially corrected (2026-09-27).** Auditing every base_n24 area report on
+record shows `fair_results`, `invocation_results`, and the pre-fix
+repeated-input diagnostic (which only ever traced one real invocation, see
+below) all agree exactly: Total Area 1.40134e+06 µm², FU Area 598362 µm².
+Same-stage, same-input reruns of the single-invocation (REPS=1) case are
+area-stable, including across independent from-scratch rebuilds on a
+different host (see `docs/VALIDATION.md`'s 2026-09-26 entry). Power has not
+been validated.
 
-**New, separate finding — area is not stable across repeated invocations
-within one run.** The Gate 1 fix (below) made a second real accelerator
+However, the explanation previously given here for `roi_results/base_n24`'s
+different area (1.33128e+06 µm², MEM Area 732,920 vs 802,977 — a 70,057 µm²
+gap) was **wrong and is retracted**: it claimed the ROI stage runs a
+"genuinely different, shorter ROI-bounded trace." It does not. The `fair`
+and `roi` gem5-cache.log for base_n24 report the **identical** trace: Num of
+Nodes 198290, Num of Edges 451248, Total connected nodes 170042, and
+identical Aladdin Cycle count (1452) — same DDDG, same accelerator config
+(`gem5_cache.cfg` is not mode-dependent), yet different MEM Area. **The
+actual cause is unresolved.** Candidates not yet ruled out: some
+order/caching effect in how Aladdin's CACTI-based area modeling is invoked
+across the `full`→`roi`→`invocation` mode loop sharing one `work_dir`
+(`scripts/run_inside.sh` builds the trace once and reuses `work_dir` for all
+three modes), or a genuine tool nondeterminism unrelated to trace content.
+Until this is isolated with a controlled pair (matching trace SHA-256,
+configs, and CACTI inputs/outputs saved side-by-side), **treat MEM Area for
+base_n24 as having two disagreeing measurements on record, not a single
+validated number** — the `fair_results` value (802,977 µm², matching every
+other independent measurement) is the one used in the headline area numbers
+above, but the discrepancy itself is not explained away.
+
+**New, separate finding — neither area nor cycle count is stable across
+repeated invocations within one run, and this must not be read as "the
+per-call cost."** The Gate 1 fix (below) made a second real accelerator
 invocation possible for the first time. Comparing invocation 1 to invocation
 2 of the *same* kernel in the *same* gem5 process
 (`results/diagnostics/repeated_input_n24_fixed/`): MEM Area stays exactly
 constant (802977 µm² both times, both kernels), but FU Area jumps
 substantially — base_n24: 598362→832260 µm² (+39%); tiled4_n24:
-593769→695405 µm² (+17%).
+593769→695405 µm² (+17%). **More strikingly, invocation 2's Aladdin cycle
+count collapses relative to invocation 1**, despite an *identical* DDDG
+(same Num of Nodes 198290, Num of Edges 451248, Total connected nodes
+170042 in both invocations — confirmed by direct inspection, this is not a
+truncated or partial re-trace): base_n24 1452→**229** cycles; tiled4_n24
+1133→**228** cycles. That is an 84%/80% cycle-count drop for structurally
+the same computation. First-call cycle/area numbers must not be assumed to
+carry over to a "warm" second call — they are a different measurement, not
+a steady-state per-call cost, and neither the fast cycle count nor the
+larger area from invocation 2 should be cited as a repeated-call figure
+until this is understood.
 
 Traced this one level further in `src/aladdin/common/BaseDatapath.cpp`:
 `fu_area` is driven by per-function peak concurrent resource counts
@@ -202,21 +253,38 @@ from scratch on every call (not a class member, not carried over from a
 prior invocation), so this is not a stale-accumulator bug. The peak
 concurrency itself genuinely differs between the two invocations' resource-
 constrained schedules, even though both invocations run the identical static
-loop nest. Leading hypothesis (not yet confirmed): Aladdin's dynamic trace
-and DDDG node numbering is one continuous count across the whole run, not
-reset per invocation — so invocation 2's nodes carry a different (larger)
-absolute ID range than invocation 1's structurally-identical nodes. If the
-scheduler's ready-list tie-breaking or partition/bank assignment depends on
-absolute node ID (directly, or via a hash/modulo), an isomorphic DDDG could
-still legitimately schedule differently on invocation 2, producing a
-different concurrency peak without any bug in the accounting itself. Not yet
-confirmed against the actual scheduler code (`Scheduler`/`schedule()` in the
-same directory) — that would be the next step for anyone picking this up.
-This does not affect any number published above (all are REPS=1,
-single-invocation), but it means area is not yet a trustworthy metric for
-any future repeated-invocation or "dynamic" area study — that would need its
-own repeatability check, and likely a fix or normalization for the node-
-numbering effect, before being reported.
+loop nest and identical DDDG.
+
+Two candidate mechanisms, neither confirmed:
+1. Aladdin's dynamic trace and DDDG node numbering is one continuous count
+   across the whole run, not reset per invocation — so invocation 2's nodes
+   carry a different (larger) absolute ID range than invocation 1's
+   structurally-identical nodes. If the scheduler's ready-list tie-breaking
+   or partition/bank assignment depends on absolute node ID, an isomorphic
+   DDDG could still legitimately schedule differently.
+2. **Cache/queue warmth.** This is a *coherent private-cache* accelerator,
+   and invocation 2 reuses the same array addresses invocation 1 just
+   accessed. If Aladdin's memory-latency model treats those addresses as
+   already resident (lower modeled latency on the second access), the
+   scheduler would face far less memory-stall pressure on invocation 2 —
+   which would independently explain *both* new findings together: fewer
+   cycles (less stalling) and higher peak concurrent resource usage (more
+   ops become schedulable per cycle once memory is no longer the
+   bottleneck). This would make the invocation-2 numbers a genuine
+   "warm-cache" measurement, not a bug — but it still means invocation-1
+   ("cold") and invocation-2 ("warm") are two different operating points
+   that must be labeled and reported separately, never averaged or treated
+   as one steady-state per-call cost.
+
+Distinguishing these (or finding both partially responsible) needs the
+per-call memory-latency breakdown from a proper `INVOCATION_STATS`-instrumented
+REPS=2 rerun (segmenting `dcache_latency`/TLB stats per call) and/or reading
+Aladdin's scheduler (`Scheduler`/`schedule()` in the same directory) directly
+— not yet done. This does not affect any number published above (all are
+REPS=1, single-invocation), but it means area *and* cycle count are not yet
+trustworthy metrics for any future repeated-invocation or "dynamic" study —
+that would need its own repeatability check and a resolved mechanism before
+being reported.
 
 **Update — Gate 1 dynamic-input failure root-caused and fixed.** The
 repeated-input diagnostic originally changed A on the CPU between
@@ -245,7 +313,18 @@ input-mutation branch is gated on `REPS > 1`; confirmed by rebuilding N=24
 wall-clock fields) against a pre-fix rebuild on the same host — bit-identical.
 This resolves Gate 1 for the fixed-trace-plus-repeat-invocation case tested
 here; broader dynamic-input scenarios (e.g. input changing mid-computation,
-not just between calls) are still out of scope. See `docs/NEXT_STEPS.md`.
+not just between calls) are still out of scope. **A further, more specific
+limit**: the fix works by making the trace generator apply the exact same
+predetermined mutation (`A[rep % (N*N)] += 1`) that the runtime harness
+also applies — tracer and harness are synchronized on an identical,
+hardcoded pattern, not on an arbitrary runtime CPU write. Correctness has
+only been demonstrated for *that* pre-agreed mutation, not for an
+independent/unpredictable CPU-side change decided at runtime. See also the
+invocation-2 cycle-count anomaly above (1452→229, 1133→228 cycles) — the
+fix makes the accelerator do *real, structurally-identical* work on
+invocation 2 (verified: same DDDG), and the final output is verified
+correct, but the invocation-2 *timing* itself is not yet understood and
+should not be read as "the" per-call cost. See `docs/NEXT_STEPS.md`.
 
 The pilot has two N values and deterministic inputs. It establishes a
 reproducible positive result in the model; it does not establish generality,

@@ -88,35 +88,41 @@ not validate input changing *mid-invocation*, or a design where per-call
 retracing is impractical — worth stating explicitly in any report rather
 than treating "dynamic input" as fully solved in general.
 
-## 3. Gate 2 — hardware cost: mostly resolved (`8b49795`, `33eaa93`)
+## 3. Gate 2 — hardware cost: partially resolved, one claim corrected (`8b49795`, `33eaa93`, and a 2026-09-27 correction pass)
 
-**"N=24 area reports varied across otherwise matched reruns" — audited and
-found false as originally stated.** Every true same-stage rerun of base_n24
-on record (`fair_results`, `invocation_results`, the pre-fix diagnostic, and
-an independent from-scratch Podman rebuild on a different host) reports
-identical area (Total Area 1.40134e+06 µm², FU Area 598362 µm²). The only
-number that ever differed was `roi_results/base_n24`, which runs a
-genuinely different (shorter, ROI-bounded) trace and a checksum-only check —
-comparing it to `fair`/`invocation` was never a fair same-config rerun.
-Same-stage, single-invocation (REPS=1) area is repeatable, including
-cross-host.
+**"N=24 area reports varied across otherwise matched reruns" — audited, and
+partially found false, but the original replacement explanation was itself
+wrong and has been retracted.** Every true same-stage rerun of base_n24 on
+record (`fair_results`, `invocation_results`, the pre-fix diagnostic, and an
+independent from-scratch Podman rebuild on a different host) reports
+identical area (Total Area 1.40134e+06 µm², FU Area 598362 µm²) — that part
+holds. But `roi_results/base_n24`'s different area (732,920 vs 802,977 µm²
+MEM Area) was originally attributed to "a genuinely different, shorter
+ROI-bounded trace" — **this was checked and is false**: `fair` and `roi`
+report the identical trace (same Num of Nodes 198290, Num of Edges 451248,
+Total connected nodes 170042, same Aladdin cycle count). **The actual cause
+of this specific discrepancy is unresolved** and needs a controlled pair
+(matching trace SHA-256, configs, CACTI inputs/outputs) to isolate — not yet
+done. Full detail in `docs/RESULTS.md`.
 
-**New, separate, still-open finding**: using the Gate 1 fix (which made a
-real second invocation possible for the first time), invocation 2 of the
-same kernel in the same gem5 run reports a substantially different FU Area
-than invocation 1 — base_n24: 598362→832260 µm² (+39%); tiled4_n24:
-593769→695405 µm² (+17%) — while MEM Area stays exactly constant. Traced one
-level into Aladdin's source (`src/aladdin/common/BaseDatapath.cpp`): the
-resource-peak accounting (`func_max_activity`) is freshly built on every
-call, ruling out a stale-accumulator bug — the *scheduling result itself*
-genuinely differs for an isomorphic DDDG. Leading hypothesis, not yet
-confirmed: Aladdin's dynamic trace/DDDG node numbering runs continuously
-across the whole run rather than resetting per invocation, so invocation 2's
-nodes carry different absolute IDs than invocation 1's — if the scheduler's
-tie-breaking or partition/bank assignment depends on absolute node ID, that
-alone could produce a different valid schedule with a different concurrency
-peak. Doesn't affect any published REPS=1 number; blocks any future
-repeated-invocation/"dynamic" area claim until resolved.
+**Second finding, now understood to be bigger than first reported**: using
+the Gate 1 fix (which made a real second invocation possible for the first
+time), invocation 2 of the same kernel in the same gem5 run reports not
+just a substantially different FU Area than invocation 1 (base_n24:
+598362→832260 µm², +39%; tiled4_n24: 593769→695405 µm², +17%; MEM Area
+constant) but also a **massive cycle-count change**: base_n24 1452→229
+cycles, tiled4_n24 1133→228 cycles (an 84%/80% drop) — for a confirmed
+*identical* DDDG. This was missed in the original write-up, which only
+reported the area change. Two candidate mechanisms, neither confirmed:
+Aladdin's continuous (non-reset-per-invocation) node numbering affecting
+scheduler tie-breaks, or cache/queue "warmth" (invocation 2 reuses
+invocation 1's addresses, so a lower modeled memory latency the second time
+would explain both fewer cycles and higher concurrent resource usage
+together). Either way: **invocation-2 numbers must not be read as a steady-
+state per-call cost** — they're a different (possibly "warm") operating
+point from invocation 1, and reporting them without that caveat would be
+misleading. Doesn't affect any published REPS=1 number; blocks any future
+repeated-invocation/"dynamic" area or timing claim until resolved.
 
 ## 4. Gate 3 — broader experiment: started (`0d8b58d` … `1cc4c71`)
 
@@ -129,15 +135,20 @@ pipeline (`results/validated_summary.csv`, `scripts/summarize.py`,
 
 **Size sweep** (N=8, 16, added; N=24, 32 already validated): offload-interval
 reduction is cleanly monotonic across all four sizes (1.9% → 9.4% → 11.9% →
-22.6%), but cycle reduction and CPU-relative speedup are **not** monotonic —
-N=16 beats N=24 on raw cycle reduction while losing on the CPU-relative
-metric, and N=8 is weak-to-negative on every metric (whole-program reduction
-is exactly 0.00%, tick-for-tick identical between kernels; area even
-decreases slightly for the four-column variant). Most plausible explanation:
+22.6%), and **CPU-relative speedup is also monotonically increasing**
+(0.869x → 0.957x → 1.173x → 1.524x — an earlier version of this summary
+incorrectly called this non-monotonic too). What actually is non-monotonic
+is the raw cycle-reduction *percentage*: N=16 (24.84%) is numerically higher
+than N=24 (21.97%) even though N=16's CPU-relative speedup is still lower.
+N=8 is the weak point: cycles and offload both improve, but whole-program
+reduction is exactly 0.00% (tick-for-tick identical between kernels) and
+CPU-relative speedup is below 1x (0.869x — slower than the CPU); area even
+decreases slightly for the four-column variant. Most plausible explanation:
 fixed per-invocation overhead dominates when there's little real work to
 amortize it over. **This means "the four-column extension wins" cannot be
-stated as a general claim — it's size-dependent, and the weak/negative
-result at small N should be reported, not dropped.**
+stated as a single general claim — different metrics rank sizes
+differently, and the weak/negative result at N=8 should be reported, not
+dropped.**
 
 **Tile-width ablation** (new `benchmarks/gemm_tiled2/`, a 2-column variant;
 compared against the existing 1-column base and 4-column extension, all at
@@ -152,7 +163,12 @@ Queue/cache traffic data (explicitly requested by Gate 3): raw access counts
 three tile widths — same total data volume moved — but mean dcache access
 latency drops monotonically with tile width (27,518.8 → 22,432.1 → 19,915.2
 ticks), tracking the same diminishing-returns shape as cycle/offload
-reduction. Reads as: reuse reduces per-access contention, not data volume.
+reduction. **Correction**: "reuse reduces per-access contention, not data
+volume" was stated too strongly originally — that's a plausible reading of
+these two observations, not a verified causal mechanism; access counts were
+checked, not raw byte counts, and no instrumentation has isolated contention
+specifically (as opposed to, e.g., a scheduling artifact like the one found
+in Gate 2's repeated-invocation finding above) as the cause.
 
 Full detail, tables, and formulas for all of the above are in
 `docs/RESULTS.md`; gate-by-gate status is in `docs/NEXT_STEPS.md`.

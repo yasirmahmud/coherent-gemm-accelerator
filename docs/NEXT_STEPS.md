@@ -54,14 +54,25 @@ present an unchecked claim as an established result.
 - [x] Fix the REPS=2 trace/harness mismatch: both N=24 accelerator kernels
   now produce a second datapath graph and pass the full output check after
   a CPU input update. See `results/diagnostics/repeated_input_n24_fixed/`.
-- [ ] Add a reproducible REPS=2 (or higher) runner that saves the trace hash,
-  checks the output after **each** call, and records per-call offload intervals.
-  Current second-call datapath counts are 229 cycles (base) and 228 cycles
-  (tile-4); first-call gains must not be assumed to persist when warm.
-- [ ] Test at least one CPU-side input change that is not merely the same
-  predetermined mutation in both tracer and host harness. Until then,
-  claim correctness only for the tested pre-traced repeated-call scenario,
-  not arbitrary runtime coherence.
+- [x] Add a reproducible REPS≥2 runner that saves the trace hash, checks
+  the output after **each** call, and records per-call offload intervals.
+  See `scripts/run_repeated.sh` + `scripts/summarize_repeated.py`. A REPS=3
+  base_n24 run confirms the warm state stabilizes rather than drifting
+  further: per-call cycles 1452 → 628 → 628 (calls 1 and 2 byte-identical).
+  The exact warm-state number is measurement-setup-sensitive (differs from
+  the earlier ad-hoc REPS=2 test's 229 cycles); first-call gains must still
+  not be assumed to persist when warm, and neither should any single warm
+  number be assumed stable across different measurement harnesses.
+- [x] Test at least one CPU-side input change that is not merely the same
+  predetermined mutation in both tracer and host harness. **Result: it
+  fails.** `scripts/run_repeated.sh base 24 3 --independent-mutation`
+  (runtime mutation with a different index/delta pattern than the trace)
+  produces 20/24/19 mismatches across the 3 calls
+  (`results/diagnostics/repeated_n24_reps3_base_independent/`). This
+  disproves this repo's own earlier (untested) prediction that Aladdin's
+  replay would be value-independent. **Claim correctness only for the
+  tested case: runtime mutation exactly matching the trace-time mutation.**
+  Not established: arbitrary/unpredictable runtime coherence.
 
 ### Hardware cost and reproducibility
 

@@ -1,82 +1,107 @@
 # Next steps and decision gates
 
-## Gate 1: dynamic input correctness — RESOLVED (2026-09-26)
+Updated 2026-09-27. `[x]` means completed with saved evidence; `[ ]` means
+pending. A focused proposal can proceed while validation continues. Do not
+present an unchecked claim as an established result.
 
-Reproduced the N=24 repeated-invocation failure in a small test (REPS=2,
-`-DN=24`, both kernels). Root cause was not Aladdin's trace address/value
-handling or gem5-Aladdin host mapping, but the trace-generation build path:
-`LLVM_TRACE` in `benchmarks/*/​*.c` called `gemm_kernel()` once regardless of
-`REPS`, so the recorded `dynamic_trace.gz` only ever covered one accelerator
-invocation. The simulated harness (`GEM5_HARNESS`) called
-`invokeAcceleratorAndBlock()` `REPS` times against CPU-modified input, so
-invocation 2+ replayed against an exhausted trace, did zero real work, and
-silently compared stale invocation-1 output against a fresh CPU reference
-computed on the updated input.
+## 1. Proposal and course requirements — do first
 
-Fix: made `LLVM_TRACE` loop `REPS` times with the same input mutation as the
-harness (`benchmarks/gemm_acp_pilot/gemm_acp_pilot.c`,
-`benchmarks/gemm_tiled4/gemm_tiled4.c`). Both failing and passing logs are
-kept: `results/diagnostics/repeated_input_n24/` (pre-fix, 19 mismatches on
-both kernels) and `results/diagnostics/repeated_input_n24_fixed/` (post-fix,
-0 mismatches on both kernels, real second-invocation DDDG confirmed). The
-fix does not change any `REPS=1` (default) behavior — verified bit-identical
-against a pre-fix rebuild on the same host, excluding host wall-clock stats.
+- [x] Select an accessible open-source base: pinned gem5-Aladdin/Aladdin,
+  x86 `DerivO3CPU`, Ruby `MESI_Two_Level_aladdin`, and its coherent
+  private-cache accelerator path. See [BUILD.md](BUILD.md) and
+  [UPSTREAM.md](UPSTREAM.md).
+- [x] Establish one-column baseline and four-column extension at N=24/32
+  with full correctness checks, raw stats, and a reproducible summary.
+  Offload-time reductions are 11.90% and 22.56%; whole-program reductions
+  are only 0.47% and 1.18%.
+- [ ] Confirm the exact proposal deadline, submission route, team rules,
+  and required format in Canvas. The lecture's approximate October 1 date
+  is not an official deadline.
+- [ ] Submit one focused proposal and agree its scope with the instructor:
+  **How does output-column tile width affect coherent GEMM accelerator
+  offload latency and modeled hardware cost?** Name the baseline, mechanism,
+  CPU/coherence configuration, overhead, measurements, expected outcome, and
+  deliverables. Treat general dynamic AI accelerator co-design as a stretch
+  goal rather than a promised deliverable.
 
-Remaining scope note: this validates CPU-modified input *between* discrete
-accelerator calls with a full re-trace per call. It does not by itself
-validate input changing *during* a single accelerator invocation, or a
-design where re-tracing per call is impractical (e.g. very large/variable
-inputs) — if the course proposal wants a stronger "fully dynamic" claim,
-that gap should be stated explicitly rather than assumed closed.
+## 2. Correct the published record — before using figures in the proposal
 
-## Gate 2: hardware cost — partially resolved (2026-09-26)
+- [ ] Correct [RESULTS.md](RESULTS.md) and
+  [SESSION_SUMMARY.md](../SESSION_SUMMARY.md): the N=24
+  baseline full and ROI logs have the same 170,042 connected nodes, 392,999
+  edges, 1,452 cycles, and gem5 hardware settings, yet different MEM Area
+  (802,977 vs 732,920 µm²). The claim that a *shorter ROI trace* explains
+  the difference is unsupported. Mark the cause unresolved.
+- [ ] Correct the size-sweep interpretation: CPU-relative speedup increases
+  across N=8/16/24/32 (0.869/0.957/1.173/1.524×). Cycle-reduction
+  percentage is non-monotonic. At N=8, cycles and offload time improve,
+  while whole-program time is unchanged and CPU-relative speedup is below 1×.
+- [ ] Correct the N=24 tile-width table's tile-1 “vs same-kernel CPU” value
+  to 1.164× (70,973,000 CPU ticks / 60,962,000 accelerator ticks), rather
+  than 1.000×. Label any baseline-normalized column separately.
+- [ ] Update [README.md](../README.md) and
+  [COURSE_ELIGIBILITY.md](COURSE_ELIGIBILITY.md) with the passing REPS=2
+  diagnostic, N=8/16 and tile-width-2 results, and their limits. Retain the
+  original failing diagnostic as historical evidence.
+- [ ] Present equal dcache request counts and lower mean latency/queue time
+  as observations. Verify byte counts and a causal mechanism before claiming
+  unchanged data volume or reduced contention as the explanation.
 
-"Repeat the N=24/N=32 area estimates ... identify why N=24 changed despite
-reproducible timing": **it didn't, on closer audit.** Every true same-stage,
-same-input rerun of base_n24 on record (`fair_results`, `invocation_results`,
-the pre-fix repeated-input diagnostic, and an independent from-scratch
-rebuild on a different host) reports identical area. The only differing
-number came from `roi_results`, which runs a genuinely different (shorter,
-ROI-bounded) trace — comparing it to `fair`/`invocation` was never a fair
-same-config rerun. So area for the published REPS=1 N=24/N=32 numbers is not
-exploratory on repeatability grounds; see `docs/RESULTS.md` for the full
-audit.
+## 3. Experimental validation
 
-New, separate, still-open finding: area is *not* stable across repeated
-invocations of the same kernel within one gem5 run — FU Area grows
-substantially from invocation 1 to invocation 2 (base_n24: +39%, tiled4_n24:
-+17%) while MEM Area stays constant (`results/diagnostics/repeated_input_n24_fixed/`).
-This only became visible once Gate 1's fix made a real second invocation
-possible, and does not affect any already-published number (all REPS=1).
-Before any future work reports an area number from a repeated-invocation or
-"dynamic" scenario, isolate this mechanism (candidates: Aladdin's
-per-invocation resource-scheduling state not resetting between calls, or the
-finite-queue patch's cross-call queue/state bookkeeping) and confirm it's
-either fixed or bounded.
+### Trace correctness and repeated use
 
-Add power only after its tool output has been checked for repeatability. A
-four-column design that only wins by excessive hardware cost is not a
-strong result.
+- [x] Fix the REPS=2 trace/harness mismatch: both N=24 accelerator kernels
+  now produce a second datapath graph and pass the full output check after
+  a CPU input update. See `results/diagnostics/repeated_input_n24_fixed/`.
+- [ ] Add a reproducible REPS=2 (or higher) runner that saves the trace hash,
+  checks the output after **each** call, and records per-call offload intervals.
+  Current second-call datapath counts are 229 cycles (base) and 228 cycles
+  (tile-4); first-call gains must not be assumed to persist when warm.
+- [ ] Test at least one CPU-side input change that is not merely the same
+  predetermined mutation in both tracer and host harness. Until then,
+  claim correctness only for the tested pre-traced repeated-call scenario,
+  not arbitrary runtime coherence.
 
-## Gate 3: broader experiment
+### Hardware cost and reproducibility
 
-Try additional valid tile widths and input sizes, or one representative
-inference layer that the trace/scheduler can finish within the deadline.
-Measure offload ticks, accelerator cycles, CPU comparator ticks, queue/cache
-traffic, and area. Use identical CPU and memory settings and note any tool
-limits. Repeat key points and produce plots with units and raw-data links.
+- [ ] Isolate the N=24 baseline MEM Area discrepancy with a controlled pair:
+  save trace SHA-256, effective configs, Aladdin/CACTI inputs and outputs,
+  and both raw logs. Determine whether configuration/input differences or
+  tool behavior cause the 70,057 µm² difference.
+- [ ] Investigate why REPS=2 invocation 2 increases FU Area by about 39%
+  (base) and 17% (tile-4) despite an isomorphic datapath graph. Check
+  scheduler/resource peaks before citing repeated-call area.
+- [ ] Re-run paired baseline and tile-4 experiments on the second host,
+  retain raw outputs, and compare **within-host percentage gains** as well
+  as absolute ticks. Its prior rebuild passed correctness but did not
+  reproduce every timing counter bit-for-bit.
+- [ ] Report area or power as a cost conclusion only after relevant model
+  outputs are repeatable and explained. Otherwise label them exploratory
+  and make latency the primary measured outcome.
 
-## Gate 4: course deliverables
+### Breadth and repeatable tooling
 
-Agree the bounded research question and deliverables with the instructor.
-Write a proposal that names the exact CPU, coherence protocol, accelerator,
-baseline, mechanism, overhead, and outcome metrics. The final report must
-include figures, explanation of why the latency changed, failed variants,
-reproducibility instructions, and an honest account of the dynamic-input
-limitation if unresolved. Confirm deadline and submission instructions in
-Canvas rather than relying on the lecture's approximate date.
+- [x] Add N=8/16 exploratory sizes with full checks and raw logs. The
+  offload-time reduction rises from 1.90% at N=8 to 22.56% at N=32, while
+  N=8 has no whole-program benefit.
+- [x] Add a tile-width-2 N=24 point with full checks and raw logs. The
+  N=24 tile-1/2/4 cycle counts are 1,452/1,257/1,133.
+- [ ] Give N=8/16 and tile-width-2 documented, repeatable run commands and
+  an automated summary check; tile-width 2 was run manually.
+- [ ] If time permits after proposal approval, test tile-width 2 at N=32 or
+  one representative inference workload. Hold CPU, cache, coherence, clock,
+  and input fixed within each comparison. Report negative and mixed results.
 
-Suggested safe proposal scope: **GEMM output-column reuse in the existing
-gem5-Aladdin coherent private-cache accelerator**, with offload latency and
-area tradeoff as the primary study. A general OoO CPU plus dynamically
-coherent AI accelerator co-design remains a stretch goal pending Gate 1.
+## 4. Final report and completion check
+
+- [ ] Include the research question, architecture diagram, baseline and
+  mechanism, exact simulator configuration, controlled comparisons,
+  correctness evidence, latency plots, hardware-cost evidence, causal
+  analysis, reproducibility commands, and limitations.
+- [ ] Explain small whole-program gains and the weak N=8 result; distinguish
+  cold single-call behavior from repeated warm calls. Do not infer a general
+  or silicon speedup from these simulator points.
+- [ ] Regenerate summaries from committed raw logs, verify figures and
+  units, and ensure README, results, proposal, and report make consistent
+  claims before submission.

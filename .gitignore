@@ -8,3 +8,7 @@ results/*_trace.sha256
 results/**/build.log
 results/**/config.json
 results/**/fs/
+
+proposal/*
+!proposal/proposal.tex
+!proposal/proposal.pdf

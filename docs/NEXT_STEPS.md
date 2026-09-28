@@ -85,13 +85,25 @@ present an unchecked claim as an established result.
 
 ### Hardware cost and reproducibility
 
-- [ ] Isolate the N=24 baseline MEM Area discrepancy with a controlled pair:
+- [x] Isolate the N=24 baseline MEM Area discrepancy with a controlled pair:
   save trace SHA-256, effective configs, Aladdin/CACTI inputs and outputs,
   and both raw logs. Determine whether configuration/input differences or
-  tool behavior cause the 70,057 µm² difference.
-- [ ] Investigate why REPS=2 invocation 2 increases FU Area by about 39%
+  tool behavior cause the 70,057 µm² difference. **Result: does not
+  reproduce.** A controlled full/roi × order test
+  (`results/diagnostics/mem_area_order_test/`) shows all four combinations
+  producing identical area (802,977 µm² MEM). The committed discrepancy
+  likely reflects the original files' build provenance, not the pipeline
+  itself. See `docs/RESULTS.md`.
+- [x] Investigate why REPS=2 invocation 2 increases FU Area by about 39%
   (base) and 17% (tile-4) despite an isomorphic datapath graph. Check
-  scheduler/resource peaks before citing repeated-call area.
+  scheduler/resource peaks before citing repeated-call area. **Confirmed by
+  elimination**: read `BaseDatapath.cpp` directly — all internal scheduling
+  state (`num_cycles`, `executedNodes`, queues) is explicitly reset per
+  invocation, and the scheduler has no node-ID-based logic, ruling out an
+  Aladdin-side bug. The only remaining source is gem5's own simulated
+  memory system (deliberately not reset between calls) — i.e. genuine
+  cache/queue warmth. Matches the REPS=3 finding (cycles stabilize after
+  one repeat) precisely. See `docs/RESULTS.md`.
 - [ ] Re-run paired baseline and tile-4 experiments on the second host,
   retain raw outputs, and compare **within-host percentage gains** as well
   as absolute ticks. Its prior rebuild passed correctness but did not

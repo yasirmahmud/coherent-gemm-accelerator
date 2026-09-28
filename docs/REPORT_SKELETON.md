@@ -19,12 +19,13 @@ the extra hardware cost?* — `README.md`.)
 
 ## 2. Architecture diagram
 
-**Not yet created.** Should show: OoO `DerivO3CPU` — Ruby
-`MESI_Two_Level_aladdin` coherent memory — Aladdin `HybridDatapath`
-accelerator with its 32 kB private cache — and where the one-column vs.
-tile-width-N kernel differs (which loop, which accumulators). Source
-parameters: `docs/BUILD.md` "What is measured" section;
-`benchmarks/*/gem5*.cfg`.
+See [`ARCHITECTURE.md`](ARCHITECTURE.md) — a Mermaid diagram of CPU / Ruby
+coherence / Aladdin accelerator + private cache, what differs between the
+1/2/4-column kernel variants, and why "cold vs. warm invocation" is a real
+physical property of this coherent-cache design (the cache isn't reset
+between accelerator calls), not a simulation artifact. Render it with any
+Mermaid-aware Markdown viewer, or paste the block into
+mermaid.live if you need a static image for a submitted PDF.
 
 ## 3. Baseline and mechanism
 
@@ -83,25 +84,51 @@ the ablation numbers in `docs/RESULTS.md`.
 ## 8. Hardware-cost evidence
 
 `docs/RESULTS.md` "Cost and validity limits" and the tile-width ablation's
-queue/cache traffic table. **State plainly, per the corrected record**: the
-base_n24 `fair` vs. `roi` MEM Area discrepancy (802,977 vs. 732,920 µm²,
-identical trace) is unresolved, not explained. Area is repeatable for
-same-stage single-invocation (REPS=1) reruns, including cross-host, but not
-across repeated invocations within one run (see §9). Power is not measured.
+queue/cache traffic table. Area is repeatable for same-stage single-
+invocation (REPS=1) reruns, including cross-host, and — per the controlled
+order test in `results/diagnostics/mem_area_order_test/` — the base_n24
+`fair`/`roi` MEM Area discrepancy on the *committed* files (802,977 vs.
+732,920 µm²) does not reproduce from a clean rebuild; treat it as an
+artifact of those specific files' provenance, not a property of the
+pipeline. Area is **not** repeatable across repeated invocations within one
+run (see §9). Power is not measured at all.
 
 ## 9. Causal analysis
 
-What's demonstrated vs. hypothesized — keep this distinction explicit in the
-report:
-- Demonstrated: offload-interval reduction scales monotonically with both N
-  and tile width; queue/cache access counts are invariant to tile width
-  while mean access latency drops with it.
-- Hypothesized, not confirmed: *why* latency drops with tile width (plausible:
-  less contention; not yet isolated from alternative mechanisms). *Why*
-  invocation-2 cycle count collapses and FU Area grows in the repeated-
-  invocation case (candidates: continuous node numbering affecting scheduler
-  tie-breaks, or cache/queue "warmth" — see `docs/RESULTS.md`). *Why* the
-  base_n24 MEM Area discrepancy exists at all.
+What's demonstrated vs. confirmed vs. still open — keep this distinction
+explicit in the report, it is not a formality:
+- **Demonstrated** (data, no interpretation needed): offload-interval
+  reduction scales monotonically with both N and tile width; queue/cache
+  access counts are invariant to tile width while mean access latency drops
+  with it; CPU-relative speedup increases monotonically with N while raw
+  cycle-reduction percentage does not (different metrics, different
+  rankings — state which one you mean, every time).
+- **Confirmed by elimination** (source-level reasoning, not direct
+  instrumentation): the repeated-invocation cycle-count collapse and
+  FU-area growth (invocation 2 vs. invocation 1) is *not* an Aladdin/
+  BaseDatapath accounting bug — every piece of its internal scheduling
+  state is verified reset per invocation, and its scheduler has no node-ID-
+  based logic. The only remaining source is gem5's own simulated memory
+  system, deliberately not reset between accelerator calls — i.e. genuine
+  cache/queue warmth. This is solid but was not verified by directly
+  instrumenting per-call memory latencies; say "confirmed by elimination,"
+  not "measured directly."
+- **Still open, genuinely unexplained**: *why* mean dcache latency drops
+  with tile width specifically (plausible: less contention; not isolated
+  from other explanations — access counts were checked, not byte volumes
+  or a specific queueing mechanism).
+- **Explicitly required by `docs/NEXT_STEPS.md` §4** and easy to get wrong:
+  explain *why* whole-program gains are small (0.47%/1.18% at N=24/32,
+  exactly 0.00% at N=8) even when accelerator-side cycle/offload reductions
+  are large — the accelerator call is a small fraction of total program
+  execution (setup, host code, output checks dominate), so a big relative
+  win on the accelerator's own slice barely moves the total. Do not let a
+  large *offload-interval* percentage imply a large *whole-program* win in
+  the same breath; they are different denominators. Similarly, explicitly
+  separate a **cold** single first-call measurement (all of the validated
+  N=24/32/8/16 headline numbers) from a **warm** repeated-call measurement
+  (the REPS≥2 diagnostic data) — never quote a warm number as if it were
+  the validated cold-call result, or vice versa.
 
 ## 10. Reproducibility commands
 

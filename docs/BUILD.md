@@ -56,6 +56,32 @@ Its `build.log` and trace hashes are local byproducts. The versioned raw
 recompute the published summary. Running again overwrites the corresponding
 raw result directories; commit or copy old outputs first if comparing reruns.
 
+## Exploratory sizes and tile widths (not part of the validated set)
+
+`scripts/run.sh` intentionally only accepts N=24/32. To reproduce the
+exploratory N=8/16 points or the tile-width-2 ablation (see
+[RESULTS.md](RESULTS.md)), use:
+
+```bash
+bash scripts/run_inside.sh 8 all      # or 16, or full/roi/invocation
+python3 scripts/explore_size.py 8 16  # writes results/exploratory_summary.csv
+python3 scripts/plot_results_exploratory.py
+
+bash scripts/run_ablation.sh tiled2 24 all   # any benchmarks/gemm_<variant>/ directory
+```
+
+`run_ablation.sh` mirrors `run_inside.sh`'s exact build/check logic for one
+variant at a time, so it works for any tile-width (or other) variant added
+under `benchmarks/gemm_<variant>/`, not just `base`/`tiled4`. Neither of
+these exploratory paths touches `results/validated_summary.csv` or
+`results/offload_comparison.png` — those stay scoped to N=24/32 via
+`scripts/summarize.py` / `scripts/plot_results.py`.
+
+For repeated-invocation (dynamic-input) correctness testing specifically,
+see `scripts/run_repeated.sh` and `scripts/summarize_repeated.py`
+(parameterized REPS≥2 runner with per-call checking, described in
+[RESULTS.md](RESULTS.md)'s Gate 1 section).
+
 To validate shipped outputs without Docker:
 
 ```bash

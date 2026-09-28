@@ -26,26 +26,35 @@ present an unchecked claim as an established result.
 
 ## 2. Correct the published record — before using figures in the proposal
 
-- [ ] Correct [RESULTS.md](RESULTS.md) and
+- [x] Correct [RESULTS.md](RESULTS.md) and
   [SESSION_SUMMARY.md](../SESSION_SUMMARY.md): the N=24
   baseline full and ROI logs have the same 170,042 connected nodes, 392,999
   edges, 1,452 cycles, and gem5 hardware settings, yet different MEM Area
   (802,977 vs 732,920 µm²). The claim that a *shorter ROI trace* explains
-  the difference is unsupported. Mark the cause unresolved.
-- [ ] Correct the size-sweep interpretation: CPU-relative speedup increases
+  the difference is unsupported. Mark the cause unresolved. Done in both
+  files (2026-09-27); see RESULTS.md's "Cost and validity limits".
+- [x] Correct the size-sweep interpretation: CPU-relative speedup increases
   across N=8/16/24/32 (0.869/0.957/1.173/1.524×). Cycle-reduction
   percentage is non-monotonic. At N=8, cycles and offload time improve,
   while whole-program time is unchanged and CPU-relative speedup is below 1×.
-- [ ] Correct the N=24 tile-width table's tile-1 “vs same-kernel CPU” value
+  Corrected in RESULTS.md's N=8/16 addendum and SESSION_SUMMARY.md.
+- [x] Correct the N=24 tile-width table's tile-1 “vs same-kernel CPU” value
   to 1.164× (70,973,000 CPU ticks / 60,962,000 accelerator ticks), rather
-  than 1.000×. Label any baseline-normalized column separately.
-- [ ] Update [README.md](../README.md) and
+  than 1.000×. Label any baseline-normalized column separately. Done in the
+  tile-width ablation table in RESULTS.md.
+- [x] Update [README.md](../README.md) and
   [COURSE_ELIGIBILITY.md](COURSE_ELIGIBILITY.md) with the passing REPS=2
   diagnostic, N=8/16 and tile-width-2 results, and their limits. Retain the
-  original failing diagnostic as historical evidence.
-- [ ] Present equal dcache request counts and lower mean latency/queue time
+  original failing diagnostic as historical evidence (still at
+  `results/diagnostics/repeated_input_n24/`, untouched).
+- [x] Present equal dcache request counts and lower mean latency/queue time
   as observations. Verify byte counts and a causal mechanism before claiming
-  unchanged data volume or reduced contention as the explanation.
+  unchanged data volume or reduced contention as the explanation. Reworded
+  in RESULTS.md's queue/cache traffic section: access counts confirmed
+  identical, latency drop confirmed, "reduces contention" downgraded from
+  stated-as-fact to explicitly-unverified hypothesis. Byte counts (as
+  opposed to access counts) still not separately checked — noted as an
+  open gap in the same section rather than silently left implied-done.
 
 ## 3. Experimental validation
 
@@ -98,11 +107,21 @@ present an unchecked claim as an established result.
   N=8 has no whole-program benefit.
 - [x] Add a tile-width-2 N=24 point with full checks and raw logs. The
   N=24 tile-1/2/4 cycle counts are 1,452/1,257/1,133.
-- [ ] Give N=8/16 and tile-width-2 documented, repeatable run commands and
-  an automated summary check; tile-width 2 was run manually.
+- [x] Give N=8/16 and tile-width-2 documented, repeatable run commands and
+  an automated summary check. N=8/16:
+  `bash scripts/run_inside.sh {8,16} all` (same script as validated N=24/32,
+  just bypassing `scripts/run.sh`'s size guard), summarized with
+  `python3 scripts/explore_size.py 8 16`. Tile-width-2 (previously run
+  manually): now `bash scripts/run_ablation.sh tiled2 24 all` — a new,
+  committed, generic single-variant runner (any `benchmarks/gemm_<variant>/`
+  directory, not just base/tiled4), matching `scripts/run_inside.sh`'s exact
+  build/check logic. Verified by rerunning it and reproducing the existing
+  committed tiled2_n24 numbers exactly (1,257 cycles, 0 mismatches).
 - [ ] If time permits after proposal approval, test tile-width 2 at N=32 or
   one representative inference workload. Hold CPU, cache, coherence, clock,
   and input fixed within each comparison. Report negative and mixed results.
+  **Not started** — explicitly gated on proposal approval (section 1, still
+  open), so deliberately left undone rather than run ahead of that.
 
 ## 4. Final report and completion check
 

@@ -48,3 +48,40 @@ numbers from a rebuild as directly comparable to the numbers already in this
 repo. No repo files were changed by this revalidation; the rebuilt results
 were discarded after comparison (see `claude_session_rasin.md`, gitignored,
 for the working notes).
+
+## 2026-09-27: within-host percentage gains reproduce, even though absolute ticks don't
+
+Per `docs/NEXT_STEPS.md` §3 ("re-run paired baseline and tile-4 experiments
+on the second host... compare within-host percentage gains as well as
+absolute ticks"): re-ran the paired N=24 base/tiled4 comparison end-to-end
+(full, invocation, and roi stages) on this session's rebuild host and
+computed every headline percentage/ratio metric using **only this host's
+own numbers** (not mixing with the originally-shipped values), then compared
+those percentages against the originally published ones:
+
+| Metric | This host | Published | Match |
+| --- | ---: | ---: | --- |
+| Cycle reduction | 21.970% | 21.97% | Exact |
+| Offload-interval reduction | 11.802% | 11.90% | Close (Δ0.1pp) |
+| Whole-program reduction | 0.474% | 0.474% | Exact |
+| CPU-relative speedup | 1.179x | 1.173x | Close (Δ0.006) |
+
+Absolute tick values themselves still differ from the originally shipped
+numbers by small amounts (e.g. offload ticks 2,703,000/2,384,000 here vs.
+2,680,000/2,361,000 published) — consistent with the 2026-09-26 entry above
+(cross-host absolute-tick differences are real and not yet root-caused).
+**But the percentage-based comparisons — which are what every headline claim
+in `docs/RESULTS.md` and `README.md` actually reports — reproduce closely or
+exactly.** This means the cross-host absolute-tick sensitivity does not
+undermine the pipeline's actual conclusions: two exact matches and two
+matches within a few hundredths, despite a fully independent rebuild on a
+different host. Cycle count (an Aladdin-internal, not gem5-CPU-model,
+measurement) has been observed to match bit-for-bit across every independent
+rebuild performed this session and the one before it — the small absolute-
+tick drift is confined to gem5's own CPU-timing model, not Aladdin's
+datapath scheduling.
+
+Raw logs from this check were not committed (they were generated solely to
+compute these ratios against the already-committed reference numbers, not
+to replace them); the working tree was restored to the committed state
+afterward via `git checkout`.

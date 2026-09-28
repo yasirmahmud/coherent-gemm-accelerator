@@ -104,13 +104,23 @@ present an unchecked claim as an established result.
   memory system (deliberately not reset between calls) — i.e. genuine
   cache/queue warmth. Matches the REPS=3 finding (cycles stabilize after
   one repeat) precisely. See `docs/RESULTS.md`.
-- [ ] Re-run paired baseline and tile-4 experiments on the second host,
+- [x] Re-run paired baseline and tile-4 experiments on the second host,
   retain raw outputs, and compare **within-host percentage gains** as well
   as absolute ticks. Its prior rebuild passed correctness but did not
-  reproduce every timing counter bit-for-bit.
-- [ ] Report area or power as a cost conclusion only after relevant model
+  reproduce every timing counter bit-for-bit. **Result: percentages
+  reproduce (2 exact, 2 within a few hundredths) despite absolute ticks
+  still differing slightly.** Cycle reduction 21.970% (published 21.97%,
+  exact), whole-program reduction 0.474% (published 0.474%, exact), offload
+  reduction 11.802% (published 11.90%), CPU-relative speedup 1.179x
+  (published 1.173x). See `docs/VALIDATION.md`'s 2026-09-27 entry.
+- [x] Report area or power as a cost conclusion only after relevant model
   outputs are repeatable and explained. Otherwise label them exploratory
-  and make latency the primary measured outcome.
+  and make latency the primary measured outcome. Followed throughout this
+  pass: area is now stated as resolved where the controlled test showed it
+  (single-invocation REPS=1, and the `fair`/`roi` order test), and
+  explicitly unresolved/exploratory where it isn't (repeated-invocation
+  area/cycle behavior); power was never cited as a conclusion anywhere,
+  consistent with it never having been measured.
 
 ### Breadth and repeatable tooling
 

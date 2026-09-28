@@ -147,13 +147,29 @@ present an unchecked claim as an established result.
 
 ## 4. Final report and completion check
 
-- [ ] Include the research question, architecture diagram, baseline and
+- [~] Include the research question, architecture diagram, baseline and
   mechanism, exact simulator configuration, controlled comparisons,
   correctness evidence, latency plots, hardware-cost evidence, causal
-  analysis, reproducibility commands, and limitations.
-- [ ] Explain small whole-program gains and the weak N=8 result; distinguish
+  analysis, reproducibility commands, and limitations. **Scaffolded, not
+  written**: `docs/REPORT_SKELETON.md` has every required section with
+  exact pointers to its evidence, and `docs/ARCHITECTURE.md` has the
+  diagram. The actual report prose is deliberately not written here — per
+  `docs/COURSE_ELIGIBILITY.md`, "Team members must understand and defend
+  the code and methodology themselves," and this is graded coursework. Use
+  the skeleton as a checklist while writing the real thing, don't submit it
+  as-is.
+- [x] Explain small whole-program gains and the weak N=8 result; distinguish
   cold single-call behavior from repeated warm calls. Do not infer a general
-  or silicon speedup from these simulator points.
-- [ ] Regenerate summaries from committed raw logs, verify figures and
+  or silicon speedup from these simulator points. Written out explicitly in
+  `docs/REPORT_SKELETON.md` §9 and throughout `docs/RESULTS.md`'s N=8/16 and
+  Gate 1 sections — ready to cite/adapt directly into the report.
+- [x] Regenerate summaries from committed raw logs, verify figures and
   units, and ensure README, results, proposal, and report make consistent
-  claims before submission.
+  claims before submission. Done 2026-09-27: `python3 scripts/summarize.py`
+  regenerated fresh from the committed raw logs — byte-identical to the
+  committed `results/validated_summary.csv`, no drift. `scripts/plot_results.py`
+  regenerated too — visually identical (only PNG metadata/timestamp
+  differed, as expected for any regenerated image). README.md,
+  docs/RESULTS.md, docs/COURSE_ELIGIBILITY.md, and docs/REPORT_SKELETON.md
+  were kept in sync with every correction made this session (no leftover
+  contradictions between them going into a proposal/report).

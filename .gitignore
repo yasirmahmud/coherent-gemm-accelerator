@@ -1,5 +1,6 @@
 claude_session_rasin.md
 .session/
+.artifacts
 __pycache__/
 *.pyc
 .DS_Store
@@ -7,6 +8,8 @@ __pycache__/
 results/*_trace.sha256
 results/**/build.log
 results/**/config.json
+!results/cache_bandwidth/**/build.log
+!results/cache_bandwidth/**/config.json
 results/**/fs/
 
 proposal/*

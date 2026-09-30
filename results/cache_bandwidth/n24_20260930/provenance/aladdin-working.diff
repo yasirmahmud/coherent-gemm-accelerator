@@ -1,0 +1,40 @@
+diff --git a/gem5/HybridDatapath.cpp b/gem5/HybridDatapath.cpp
+index 0d7231c..2082a3b 100644
+--- a/gem5/HybridDatapath.cpp
++++ b/gem5/HybridDatapath.cpp
+@@ -666,6 +666,8 @@ MemoryQueueEntry* HybridDatapath::createAndQueueAcpEntry(
+   MemoryQueueEntry* entry = cache_queue.findMatch(vaddr, isLoad);
+   if (!entry) {
+     entry = cache_queue.allocateEntry(vaddr, size, isLoad);
++    if (!entry)
++      return nullptr;
+     entry->type = ACP;
+     if (use_acp_cache) {
+       // If we have the middle cache, we don't need to handle ownership requests
+@@ -851,6 +853,8 @@ bool HybridDatapath::handleAcpMemoryOp(ExecNode* node) {
+     int size = mem_access->size;
+     MemoryQueueEntry* entry = createAndQueueAcpEntry(
+         vaddr, size, isLoad, node->get_array_label(), node_id);
++    if (!entry)
++      return false;
+     return updateAcpEntryStatus(entry, node);
+   } else {
+     fatal("Unexpected ACP access op, node id %d!\n", node_id);
+diff --git a/gem5/MemoryQueue.h b/gem5/MemoryQueue.h
+index 1b9e311..6f37d2d 100644
+--- a/gem5/MemoryQueue.h
++++ b/gem5/MemoryQueue.h
+@@ -80,12 +80,7 @@ class MemoryQueue {
+   bool canIssue() { return bandwidth == 0 ? true : (issuedThisCycle < bandwidth); }
+ 
+   bool isFull() {
+-    if (ops.size() >= size) {
+-      warn("The memory queue becomes full. Capacity: %d, current size: %d.\n",
+-           size,
+-           ops.size());
+-    }
+-    return false;
++    return ops.size() >= size;
+   }
+ 
+   /* Returns true if the ops already contains an entry for this address. */

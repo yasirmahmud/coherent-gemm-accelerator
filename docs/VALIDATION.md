@@ -1,5 +1,27 @@
 # Package validation record
 
+## 2026-09-30: completed cache-bandwidth sensitivity study
+
+The isolated N=24 cohort in `results/cache_bandwidth/n24_20260930/` covers
+widths 1/4 and issue limits 1/2/4. All 18 accelerator stages and both
+full-check CPU executions completed successfully. The final summarizer
+verified all six points, full output checks, checksums, matching host
+instruction counts, retained trace hashes, graph sizes, and stage-specific
+binary hashes. All effective gem5 configuration entries match within each
+stage after normalization of generated names/paths and exclusion of the
+intentionally varied `cacheBandwidth`. The simulator binary's SHA-256
+matches the recorded pre-run hash.
+
+Offload reductions for width 4 are 4.669%, 7.268%, and 12.033% as bandwidth
+increases from 1 to 2 to 4. The issue-limit sensitivity is measured; unique
+bottleneck attribution is not established. Eight validator tests passed,
+including rejection of incomplete, failed, altered-trace, wrong-bandwidth,
+and uncontrolled-CPU evidence. Raw artifacts, CSV, standalone figures, and
+a SHA-256 manifest are retained. The proposal was rebuilt and visually
+checked at two pages. See [CACHE_BANDWIDTH.md](CACHE_BANDWIDTH.md).
+
+## Earlier package validation
+
 Validated on 2026-09-25/26 in Linux under WSL2:
 
 | Check | Outcome |
@@ -85,3 +107,33 @@ Raw logs from this check were not committed (they were generated solely to
 compute these ratios against the already-committed reference numbers, not
 to replace them); the working tree was restored to the committed state
 afterward via `git checkout`.
+
+## 2026-09-30: recovered complete local reproduction and N=32 width-2 evidence
+
+Repository reconciliation found a dated local rebuild in the ignored
+`.artifacts/results/` directory. It contains full, ROI, and invocation stages
+for base/tiled4 at both N=24 and N=32, plus tiled2 at N=32. Thus the earlier
+incomplete N=32 rerun record above describes that historical session, not
+the current availability of a complete local N=32 reproduction.
+
+Recovered files were copied into
+[`results/reproductions/ece-lnx-10_2026-09-30/`](../results/reproductions/ece-lnx-10_2026-09-30/README.md)
+with separate provenance, a raw-derived summary, and a SHA-256 manifest.
+Original published results were retained. This reconciliation checked saved
+outputs; it did not rerun the simulator or independently rehash the build
+executable identified by the original local reproduction note.
+
+All five points pass full CPU and accelerator checks, ROI/invocation checksum
+agreement, and within-size accelerator-host instruction matching. The
+invocation stats contain the expected completion and host-return intervals.
+CPU type and accelerator cycle/cache/queue settings match across all recovered
+accelerator stages. At N=32, width 2 has 2,268 cycles and 3,508,000 offload
+ticks, a 15.102% reduction against the recovered baseline's 4,132,000 ticks.
+
+Recovered baseline/width-4 offload reductions are 11.802% at N=24 and
+21.975% at N=32, compared with published 11.903% and 22.556%. Datapath-cycle
+and whole-program reduction percentages match. Keep cohort provenance when
+comparing widths; do not combine baseline and variant timings from different
+cohorts. See [EXPERIMENT_INVENTORY.md](EXPERIMENT_INVENTORY.md) for the full
+availability table and remaining work. The unavailable other device's exact
+2026-09-26/27 files have not been recovered.

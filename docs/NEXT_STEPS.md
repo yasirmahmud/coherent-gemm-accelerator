@@ -1,8 +1,11 @@
 # Next steps and decision gates
 
-Updated 2026-09-27. `[x]` means completed with saved evidence; `[ ]` means
-pending. A focused proposal can proceed while validation continues. Do not
-present an unchecked claim as an established result.
+Updated 2026-09-30. `[x]` means completed work; `[ ]` means pending or
+unconfirmed. Evidence availability is recorded separately in
+[EXPERIMENT_INVENTORY.md](EXPERIMENT_INVENTORY.md), including recovered local
+results that were absent from the published directories. A focused proposal
+can proceed while validation continues. Do not present an unchecked claim
+as an established result.
 
 ## 1. Proposal and course requirements — do first
 
@@ -60,6 +63,11 @@ present an unchecked claim as an established result.
 
 ### Trace correctness and repeated use
 
+- [ ] Harden `scripts/summarize_repeated.py` and enforce its checks in the
+  runner. Require the expected number of calls, consecutive call indices,
+  complete timing intervals, and trace-hash metadata. The 2026-09-30 audit
+  reproduced a false pass with only one of three calls and no timing blocks
+  or trace hash. This is a code issue independent of where runs took place.
 - [x] Fix the REPS=2 trace/harness mismatch: both N=24 accelerator kernels
   now produce a second datapath graph and pass the full output check after
   a CPU input update. See `results/diagnostics/repeated_input_n24_fixed/`.
@@ -124,6 +132,14 @@ present an unchecked claim as an established result.
 
 ### Breadth and repeatable tooling
 
+- [x] Implement and run the N=24 cache-bandwidth sensitivity study: widths
+  1/4 × issue limits 1/2/4, all six fresh points with full/ROI/invocation
+  stages, shared per-kernel traces, CPU checks, complete configuration
+  comparisons, CSV, figures, and validator rejection tests. Offload gains
+  are 4.669/7.268/12.033%, showing that width benefit depends on issue
+  bandwidth. See [CACHE_BANDWIDTH.md](CACHE_BANDWIDTH.md). The proposal
+  includes this extension; physical cache-port cost remains outside its scope.
+
 - [x] Add N=8/16 exploratory sizes with full checks and raw logs. The
   offload-time reduction rises from 1.90% at N=8 to 22.56% at N=32, while
   N=8 has no whole-program benefit.
@@ -139,11 +155,19 @@ present an unchecked claim as an established result.
   directory, not just base/tiled4), matching `scripts/run_inside.sh`'s exact
   build/check logic. Verified by rerunning it and reproducing the existing
   committed tiled2_n24 numbers exactly (1,257 cycles, 0 mismatches).
-- [ ] If time permits after proposal approval, test tile-width 2 at N=32 or
-  one representative inference workload. Hold CPU, cache, coherence, clock,
-  and input fixed within each comparison. Report negative and mixed results.
-  **Not started** — explicitly gated on proposal approval (section 1, still
-  open), so deliberately left undone rather than run ahead of that.
+- [x] Recover and validate tile-width 2 at N=32. All three stages were found
+  in `.artifacts/results/` and preserved with the paired local baseline and
+  tile-width-4 results under `results/reproductions/ece-lnx-10_2026-09-30/`.
+  Width 2 passes full CPU/accelerator checks, takes 2,268 datapath cycles,
+  and reduces offload ticks by 15.102% against that cohort's baseline.
+  This completes the proposal's raw width-1/2/4 experiment matrix at both
+  sizes; N=24 and N=32 are separate cohorts. See the inventory for details.
+- [ ] Add automated summaries and plots covering widths 1/2/4 at both sizes,
+  and validate the proposal's modeled energy/energy-delay analysis.
+- [ ] If time permits, test one representative inference workload or width
+  8. No evidence is available here; execution on the unavailable device is
+  unconfirmed. Hold CPU, cache, coherence, clock, and input fixed within each
+  comparison. Report negative and mixed results.
 
 ## 4. Final report and completion check
 

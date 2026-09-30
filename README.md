@@ -80,23 +80,37 @@ previously saved N=32 evidence.
 
 ## 3. What to do next
 
-1. ~~Fix tracing so repeated accelerator calls consume CPU-updated input
-   correctly.~~ Done for the predetermined-mutation case (see above). Still
-   open: test an independent/unpredictable runtime mutation, and understand
-   invocation 2's cycle-count/area behavior before citing it as a per-call cost.
-2. Aladdin area-report variation: same-config single-invocation reruns are
-   confirmed repeatable, but the `roi` vs. `fair` stage MEM Area discrepancy
-   at N=24 (802,977 vs 732,920 µm², identical trace) remains genuinely
-   unresolved. Quantify area/power against latency only after this is closed.
-3. Expanded to N=8/N=16 and a tile-width-2 ablation at N=24 (above); still
-   open: tile-width ablation at other N, tile-width 8, larger N, or a
-   representative inference kernel.
+The added [cache-bandwidth sensitivity study](docs/CACHE_BANDWIDTH.md) is
+complete at N=24: widths 1/4 at issue limits 1/2/4, with all six full checks
+passing. Four-column offload reductions are **4.67%, 7.27%, and 12.03%**
+within the new cohort. Reproduce with `bash scripts/run_cache_bandwidth.sh`;
+raw evidence, validated tables, and figures are in
+[`results/cache_bandwidth/n24_20260930/`](results/cache_bandwidth/n24_20260930/SUMMARY.md).
+The bandwidth extension is included in the two-page proposal.
+
+1. Harden repeated-run validation to reject missing calls, timing intervals,
+   and trace-hash metadata. The independent runtime-mutation test has already
+   failed (20/24/19 mismatches at N=24); retain that correctness limit. Direct
+   measurement of warm-call behavior remains useful before citing its cost.
+2. Preserve cohort provenance in cost comparisons. A controlled N=24
+   full/ROI order test did not reproduce the historical MEM Area discrepancy;
+   the original differing files' cause remains unknown. Validate modeled
+   energy/energy-delay analysis before reporting it as a cost result.
+3. Generate summaries and plots for the complete width-1/2/4 study. N=32
+   width-2 results and a complete local N=24/N=32 reproduction were recovered
+   from ignored artifacts on 2026-09-30 and preserved separately. See the
+   [experiment inventory](docs/EXPERIMENT_INVENTORY.md) for available evidence
+   and remaining tasks. Width 8, larger N, and inference remain extensions.
 4. Write the final research report with the bottleneck, mechanism, cost,
    methodology, figures, explanation of results, and limitations.
 
 The [next-steps plan](docs/NEXT_STEPS.md) gives testable milestones and stop
 conditions. The current evidence supports a narrowly scoped dataflow study;
 it does **not** yet validate a broad dynamic CPU/AI accelerator co-design.
+
+The [immediate next steps](docs/IMMEDIATE_NEXT_STEPS.md) prioritize the
+remaining proposal gaps and bounded experiments that could strengthen its
+mechanism and reproducibility evidence.
 
 ## 4. Course eligibility and proposal scope
 

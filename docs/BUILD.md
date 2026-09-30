@@ -94,6 +94,11 @@ intervals. It then regenerates `results/validated_summary.csv`.
 
 ## What is measured
 
+For the additional width-1/4 × cache-bandwidth-1/2/4 study at N=24, run
+`bash scripts/run_cache_bandwidth.sh`. It creates an isolated cohort rather
+than overwriting published results. See [CACHE_BANDWIDTH.md](CACHE_BANDWIDTH.md)
+for controls, container overrides, validation, figures, and interpretation.
+
 Both kernels use an OoO `DerivO3CPU`, 1 GHz system/Ruby clocks, 1 GB
 DDR3_1600_8x8, one CPU, Ruby MESI two-level coherence, a 32 kB accelerator
 cache, 64-byte cache lines, queue size 32, and bandwidth 4. Config files and

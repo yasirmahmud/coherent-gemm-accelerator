@@ -1,0 +1,140 @@
+diff --git a/.gitignore b/.gitignore
+index 1f63768..4697b89 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -1,5 +1,6 @@
+ claude_session_rasin.md
+ .session/
++.artifacts
+ __pycache__/
+ *.pyc
+ .DS_Store
+diff --git a/README.md b/README.md
+index 89a6a1f..6a30a4f 100644
+--- a/README.md
++++ b/README.md
+@@ -80,17 +80,19 @@ previously saved N=32 evidence.
+ 
+ ## 3. What to do next
+ 
+-1. ~~Fix tracing so repeated accelerator calls consume CPU-updated input
+-   correctly.~~ Done for the predetermined-mutation case (see above). Still
+-   open: test an independent/unpredictable runtime mutation, and understand
+-   invocation 2's cycle-count/area behavior before citing it as a per-call cost.
+-2. Aladdin area-report variation: same-config single-invocation reruns are
+-   confirmed repeatable, but the `roi` vs. `fair` stage MEM Area discrepancy
+-   at N=24 (802,977 vs 732,920 µm², identical trace) remains genuinely
+-   unresolved. Quantify area/power against latency only after this is closed.
+-3. Expanded to N=8/N=16 and a tile-width-2 ablation at N=24 (above); still
+-   open: tile-width ablation at other N, tile-width 8, larger N, or a
+-   representative inference kernel.
++1. Harden repeated-run validation to reject missing calls, timing intervals,
++   and trace-hash metadata. The independent runtime-mutation test has already
++   failed (20/24/19 mismatches at N=24); retain that correctness limit. Direct
++   measurement of warm-call behavior remains useful before citing its cost.
++2. Preserve cohort provenance in cost comparisons. A controlled N=24
++   full/ROI order test did not reproduce the historical MEM Area discrepancy;
++   the original differing files' cause remains unknown. Validate modeled
++   energy/energy-delay analysis before reporting it as a cost result.
++3. Generate summaries and plots for the complete width-1/2/4 study. N=32
++   width-2 results and a complete local N=24/N=32 reproduction were recovered
++   from ignored artifacts on 2026-09-30 and preserved separately. See the
++   [experiment inventory](docs/EXPERIMENT_INVENTORY.md) for available evidence
++   and remaining tasks. Width 8, larger N, and inference remain extensions.
+ 4. Write the final research report with the bottleneck, mechanism, cost,
+    methodology, figures, explanation of results, and limitations.
+ 
+diff --git a/docs/NEXT_STEPS.md b/docs/NEXT_STEPS.md
+index 64c497f..44b77f3 100644
+--- a/docs/NEXT_STEPS.md
++++ b/docs/NEXT_STEPS.md
+@@ -1,8 +1,11 @@
+ # Next steps and decision gates
+ 
+-Updated 2026-09-27. `[x]` means completed with saved evidence; `[ ]` means
+-pending. A focused proposal can proceed while validation continues. Do not
+-present an unchecked claim as an established result.
++Updated 2026-09-30. `[x]` means completed work; `[ ]` means pending or
++unconfirmed. Evidence availability is recorded separately in
++[EXPERIMENT_INVENTORY.md](EXPERIMENT_INVENTORY.md), including recovered local
++results that were absent from the published directories. A focused proposal
++can proceed while validation continues. Do not present an unchecked claim
++as an established result.
+ 
+ ## 1. Proposal and course requirements — do first
+ 
+@@ -60,6 +63,11 @@ present an unchecked claim as an established result.
+ 
+ ### Trace correctness and repeated use
+ 
++- [ ] Harden `scripts/summarize_repeated.py` and enforce its checks in the
++  runner. Require the expected number of calls, consecutive call indices,
++  complete timing intervals, and trace-hash metadata. The 2026-09-30 audit
++  reproduced a false pass with only one of three calls and no timing blocks
++  or trace hash. This is a code issue independent of where runs took place.
+ - [x] Fix the REPS=2 trace/harness mismatch: both N=24 accelerator kernels
+   now produce a second datapath graph and pass the full output check after
+   a CPU input update. See `results/diagnostics/repeated_input_n24_fixed/`.
+@@ -139,11 +147,19 @@ present an unchecked claim as an established result.
+   directory, not just base/tiled4), matching `scripts/run_inside.sh`'s exact
+   build/check logic. Verified by rerunning it and reproducing the existing
+   committed tiled2_n24 numbers exactly (1,257 cycles, 0 mismatches).
+-- [ ] If time permits after proposal approval, test tile-width 2 at N=32 or
+-  one representative inference workload. Hold CPU, cache, coherence, clock,
+-  and input fixed within each comparison. Report negative and mixed results.
+-  **Not started** — explicitly gated on proposal approval (section 1, still
+-  open), so deliberately left undone rather than run ahead of that.
++- [x] Recover and validate tile-width 2 at N=32. All three stages were found
++  in `.artifacts/results/` and preserved with the paired local baseline and
++  tile-width-4 results under `results/reproductions/ece-lnx-10_2026-09-30/`.
++  Width 2 passes full CPU/accelerator checks, takes 2,268 datapath cycles,
++  and reduces offload ticks by 15.102% against that cohort's baseline.
++  This completes the proposal's raw width-1/2/4 experiment matrix at both
++  sizes; N=24 and N=32 are separate cohorts. See the inventory for details.
++- [ ] Add automated summaries and plots covering widths 1/2/4 at both sizes,
++  and validate the proposal's modeled energy/energy-delay analysis.
++- [ ] If time permits, test one representative inference workload or width
++  8. No evidence is available here; execution on the unavailable device is
++  unconfirmed. Hold CPU, cache, coherence, clock, and input fixed within each
++  comparison. Report negative and mixed results.
+ 
+ ## 4. Final report and completion check
+ 
+diff --git a/docs/VALIDATION.md b/docs/VALIDATION.md
+index eeff35a..5cb8abf 100644
+--- a/docs/VALIDATION.md
++++ b/docs/VALIDATION.md
+@@ -85,3 +85,33 @@ Raw logs from this check were not committed (they were generated solely to
+ compute these ratios against the already-committed reference numbers, not
+ to replace them); the working tree was restored to the committed state
+ afterward via `git checkout`.
++
++## 2026-09-30: recovered complete local reproduction and N=32 width-2 evidence
++
++Repository reconciliation found a dated local rebuild in the ignored
++`.artifacts/results/` directory. It contains full, ROI, and invocation stages
++for base/tiled4 at both N=24 and N=32, plus tiled2 at N=32. Thus the earlier
++incomplete N=32 rerun record above describes that historical session, not
++the current availability of a complete local N=32 reproduction.
++
++Recovered files were copied into
++[`results/reproductions/ece-lnx-10_2026-09-30/`](../results/reproductions/ece-lnx-10_2026-09-30/README.md)
++with separate provenance, a raw-derived summary, and a SHA-256 manifest.
++Original published results were retained. This reconciliation checked saved
++outputs; it did not rerun the simulator or independently rehash the build
++executable identified by the original local reproduction note.
++
++All five points pass full CPU and accelerator checks, ROI/invocation checksum
++agreement, and within-size accelerator-host instruction matching. The
++invocation stats contain the expected completion and host-return intervals.
++CPU type and accelerator cycle/cache/queue settings match across all recovered
++accelerator stages. At N=32, width 2 has 2,268 cycles and 3,508,000 offload
++ticks, a 15.102% reduction against the recovered baseline's 4,132,000 ticks.
++
++Recovered baseline/width-4 offload reductions are 11.802% at N=24 and
++21.975% at N=32, compared with published 11.903% and 22.556%. Datapath-cycle
++and whole-program reduction percentages match. Keep cohort provenance when
++comparing widths; do not combine baseline and variant timings from different
++cohorts. See [EXPERIMENT_INVENTORY.md](EXPERIMENT_INVENTORY.md) for the full
++availability table and remaining work. The unavailable other device's exact
++2026-09-26/27 files have not been recovered.

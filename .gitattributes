@@ -12,3 +12,7 @@ Makefile text eol=lf
 .gitattributes text eol=lf
 .gitignore text eol=lf
 LICENSE text eol=lf
+
+# Preserve archived experiment bytes so SHA256SUMS survives checkout.
+results/cache_bandwidth/** -text
+results/reproductions/** -text

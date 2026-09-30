@@ -7,7 +7,7 @@ measured" — cross-check against those files if this drifts.
 ```mermaid
 flowchart TB
     subgraph CPU_side["Host: out-of-order CPU"]
-        CPU["x86 DerivO3CPU<br/>1 GHz"]
+        CPU["x86 DerivO3CPU<br/>2 GHz"]
     end
 
     subgraph Coherence["Ruby coherent memory system"]

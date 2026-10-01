@@ -1,0 +1,27 @@
+test_complete_cohort_and_segment_sum (test_cache_bandwidth.CacheBandwidthEvidenceTests) ... ok
+test_failed_correctness_rejected (test_cache_bandwidth.CacheBandwidthEvidenceTests) ... ok
+test_incomplete_runner_rejected (test_cache_bandwidth.CacheBandwidthEvidenceTests) ... ok
+test_missing_host_completion_rejected (test_cache_bandwidth.CacheBandwidthEvidenceTests) ... ok
+test_missing_point_rejected (test_cache_bandwidth.CacheBandwidthEvidenceTests) ... ok
+test_uncontrolled_cpu_change_rejected (test_cache_bandwidth.CacheBandwidthEvidenceTests) ... ok
+test_wrong_effective_bandwidth_rejected (test_cache_bandwidth.CacheBandwidthEvidenceTests) ... ok
+test_wrong_trace_hash_rejected (test_cache_bandwidth.CacheBandwidthEvidenceTests) ... ok
+test_duplicate (test_repeated.RepeatedValidation) ... ok
+test_expected_required (test_repeated.RepeatedValidation) ... ok
+test_independent_mutation (test_repeated.RepeatedValidation) ... ok
+test_invalid_hash (test_repeated.RepeatedValidation) ... ok
+test_matched (test_repeated.RepeatedValidation) ... ok
+test_missing_call (test_repeated.RepeatedValidation) ... ok
+test_missing_completion (test_repeated.RepeatedValidation) ... ok
+test_missing_exit (test_repeated.RepeatedValidation) ... ok
+test_missing_hash (test_repeated.RepeatedValidation) ... ok
+test_missing_interval (test_repeated.RepeatedValidation) ... ok
+test_nonzero_mismatch (test_repeated.RepeatedValidation) ... ok
+test_out_of_order (test_repeated.RepeatedValidation) ... ok
+test_truncated_stats (test_repeated.RepeatedValidation) ... ok
+test_wrong_expected_count (test_repeated.RepeatedValidation) ... ok
+
+----------------------------------------------------------------------
+Ran 22 tests in 9.865s
+
+OK

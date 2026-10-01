@@ -1,89 +1,114 @@
-"""Summarize a scripts/run_repeated.sh output directory: per-call
-correctness and per-call offload intervals for REPS>=2 runs.
+"""Strict validation of repeated correctness diagnostics and paired timing blocks.
 
-Usage: python3 scripts/summarize_repeated.py results/diagnostics/repeated_n24_reps3_base
+Historical runs require --expected-calls; new runs may declare it in run.json.
+A recorded hash validates metadata only unless the trace itself is retained.
 """
-
+import argparse
+import hashlib
+import json
 import re
-import sys
 from pathlib import Path
 
 
+BLOCK = (r"---------- Begin Simulation Statistics ----------(.*?)"
+         r"---------- End Simulation Statistics\s*----------")
+
+
 def per_call_correctness(log_text):
-    """Returns list of (call_index, mismatches) from 'GEMM call K ...' lines."""
-    return [
-        (int(m.group(1)), int(m.group(2)))
-        for m in re.finditer(r"GEMM call (\d+) \S+: (\d+) mismatches", log_text)
-    ]
+    records = re.findall(r"(?m)^GEMM call (\d+) (passed|FAILED): (\d+) mismatches$", log_text)
+    for _, status, mismatches in records:
+        if (status == "passed") != (int(mismatches) == 0):
+            raise ValueError("Correctness status contradicts mismatch count")
+    return [(int(i), int(m)) for i, _, m in records]
+
+
+def invocation_blocks(stats_path):
+    text = stats_path.read_text()
+    blocks = re.findall(BLOCK, text, re.DOTALL)
+    if len(blocks) != text.count("---------- Begin Simulation Statistics ----------"):
+        raise ValueError("Truncated statistics block")
+    pairs = []
+    i = 0
+    while i < len(blocks):
+        block = blocks[i]
+        if re.search(r"(?m)^# Stats desc: .*datapath completed\.$", block):
+            if i + 1 >= len(blocks) or not re.search(r"(?m)^# Stats desc: gemm invocation$", blocks[i + 1]):
+                raise ValueError("Completion interval lacks matching host return")
+            pairs.append((block, blocks[i + 1]))
+            i += 2
+        else:
+            if "# Stats desc:" in block:
+                raise ValueError("Unexpected or out-of-order labeled interval")
+            # gem5's one final process-exit block is allowed only at the end.
+            if i != len(blocks) - 1:
+                raise ValueError("Unlabeled interval inside call sequence")
+            i += 1
+    return pairs
+
+
+def interval_ticks(block):
+    values = re.findall(r"(?m)^sim_ticks\s+(\d+)\b", block)
+    if len(values) != 1 or int(values[0]) <= 0:
+        raise ValueError("Interval needs exactly one positive sim_ticks value")
+    return int(values[0])
 
 
 def per_call_offload_intervals(stats_path):
-    """Generalizes scripts/summarize.py's invocation_intervals to REPS>=2:
-    each accelerator call produces one 'datapath completed' block followed
-    by one 'gemm invocation' block; returns a list of (completion_ticks,
-    offload_ticks) pairs, one per call, in order."""
-    text = stats_path.read_text()
-    blocks = re.findall(
-        r"---------- Begin Simulation Statistics ----------(.*?)"
-        r"---------- End Simulation Statistics\s*----------",
-        text,
-        re.DOTALL,
-    )
-    intervals = []
-    i = 0
-    while i + 1 < len(blocks):
-        if re.search(r"# Stats desc: .*datapath completed\.", blocks[i]):
-            if "# Stats desc: gemm invocation" in blocks[i + 1]:
-                completion = int(
-                    re.search(r"(?m)^sim_ticks\s+(\d+)\b", blocks[i]).group(1)
-                )
-                host_return = int(
-                    re.search(r"(?m)^sim_ticks\s+(\d+)\b", blocks[i + 1]).group(1)
-                )
-                intervals.append((completion, completion + host_return))
-                i += 2
-                continue
-        i += 1
-    return intervals
+    return [(interval_ticks(a), interval_ticks(a) + interval_ticks(b))
+            for a, b in invocation_blocks(stats_path)]
+
+
+def validate_run(output_dir, expected_calls=None):
+    output_dir = Path(output_dir)
+    metadata_path = output_dir / "run.json"
+    if metadata_path.exists():
+        declared = json.loads(metadata_path.read_text())["expected_calls"]
+        if expected_calls is not None and declared != expected_calls:
+            raise ValueError("Expected count disagrees with run metadata")
+        expected_calls = declared
+    if type(expected_calls) is not int or expected_calls < 2:
+        raise ValueError("Declare expected calls >=2 in run.json or --expected-calls")
+    text = (output_dir / "gem5-accel.log").read_text()
+    exits = re.findall(r"(?m)^Exiting @ tick (\d+) because exiting with last active thread context$", text)
+    if len(exits) != 1:
+        raise ValueError("Run lacks a single normal simulator exit")
+    correctness = per_call_correctness(text)
+    if [i for i, _ in correctness] != list(range(expected_calls)):
+        raise ValueError("Missing, duplicate, or out-of-order correctness records")
+    totals = re.findall(r"(?m)^GEMM per-call total: (\d+) mismatches across (\d+) calls$", text)
+    if totals != [(str(sum(m for _, m in correctness)), str(expected_calls))]:
+        raise ValueError("Missing or inconsistent per-call summary")
+    stats = list(output_dir.glob("m5out-*/stats.txt"))
+    if len(stats) != 1:
+        raise ValueError("Require exactly one repeated-run statistics file")
+    intervals = per_call_offload_intervals(stats[0])
+    if len(intervals) != expected_calls:
+        raise ValueError("Expected one completion/return pair per call")
+    hash_text = (output_dir / "trace.sha256").read_text()
+    hash_match = re.fullmatch(r"([0-9a-fA-F]{64})\s+\*?dynamic_trace\.gz\s*", hash_text)
+    if not hash_match:
+        raise ValueError("Missing or invalid trace SHA-256 metadata")
+    trace_hash = hash_match.group(1).lower()
+    trace_path = output_dir / "dynamic_trace.gz"
+    if trace_path.exists() and hashlib.sha256(trace_path.read_bytes()).hexdigest() != trace_hash:
+        raise ValueError("Retained trace hash does not match")
+    if any(m for _, m in correctness):
+        raise ValueError("Failed correctness: " + str(correctness))
+    return dict(expected_calls=expected_calls, trace_sha256=trace_hash,
+                trace_verified=trace_path.exists(),
+                calls=[dict(call=i, mismatches=m, completion_ticks=c, offload_ticks=o)
+                       for (i, m), (c, o) in zip(correctness, intervals)])
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("usage: python3 scripts/summarize_repeated.py <run_repeated.sh output dir>", file=sys.stderr)
-        raise SystemExit(2)
-    output_dir = Path(sys.argv[1])
-    log_text = (output_dir / "gem5-accel.log").read_text()
-
-    correctness = per_call_correctness(log_text)
-    if not correctness:
-        print("No 'GEMM call K ...' lines found -- was this built with -DPER_CALL_CHECK?", file=sys.stderr)
-        raise SystemExit(1)
-
-    stats_candidates = list(output_dir.glob("m5out-*/stats.txt"))
-    if not stats_candidates:
-        print("No m5out-*/stats.txt found.", file=sys.stderr)
-        raise SystemExit(1)
-    intervals = per_call_offload_intervals(stats_candidates[0])
-
-    trace_hash = ""
-    trace_hash_path = output_dir / "trace.sha256"
-    if trace_hash_path.exists():
-        trace_hash = trace_hash_path.read_text().split()[0]
-
-    print(f"Trace SHA-256: {trace_hash}")
-    print(f"{'call':>4} {'mismatches':>10} {'completion_ticks':>17} {'offload_ticks':>13}")
-    any_failed = False
-    for idx, mismatches in correctness:
-        completion, offload = intervals[idx] if idx < len(intervals) else (None, None)
-        if mismatches:
-            any_failed = True
-        print(f"{idx:>4} {mismatches:>10} {str(completion):>17} {str(offload):>13}")
-
-    total_mismatches = sum(m for _, m in correctness)
-    print()
-    print(f"Total: {len(correctness)} calls, {total_mismatches} mismatches")
-    if any_failed:
-        raise SystemExit(1)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("directory", type=Path)
+    parser.add_argument("--expected-calls", type=int)
+    args = parser.parse_args()
+    try:
+        print(json.dumps(validate_run(args.directory, args.expected_calls), indent=2))
+    except (ValueError, OSError, KeyError, TypeError) as error:
+        parser.exit(1, f"Validation failed: {error}\n")
 
 
 if __name__ == "__main__":

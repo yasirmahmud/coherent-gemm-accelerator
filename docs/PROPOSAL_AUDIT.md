@@ -1,5 +1,14 @@
 # Audit of the current proposal: 2026-09-30
 
+**Execution update:** the audit below records the pre-implementation state.
+The [immediate checklist](IMMEDIATE_NEXT_STEPS.md) and
+[diagnostic evidence](MECHANISM_DIAGNOSTICS.md) now supersede its remaining-work
+statuses. Graph attribution, validator hardening, repeated-call diagnostics,
+width reporting and the final paper are complete. Miss-cause classification
+uses the explicitly permitted aggregate alternative; historical provenance
+gaps are inventoried rather than filled with inferred identities. The revised
+proposal PDF remains two pages and contains planned work without measurements.
+
 This audit checks `proposal/proposal.tex` against current code and retained
 raw evidence. It does not change the proposal or disclose measurements in
 the proposal PDF. Completion and a favorable performance outcome are

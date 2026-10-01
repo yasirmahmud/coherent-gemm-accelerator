@@ -1,0 +1,633 @@
+gem5 Simulator System.  http://gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 compiled Sep 30 2026 05:28:43
+gem5 started Sep 30 2026 22:06:38
+gem5 executing on d4fa4db05438, pid 930
+command line: /worksrc/build/X86/gem5.opt --outdir=/project/results/diagnostics/warm_n24/unchanged_tiled2/correctness/m5out-accel /worksrc/configs/aladdin/aladdin_se.py --enable-stats-dump-and-resume --ruby --num-cpus=1 --num-l2caches=1 --num-dirs=1 --cpu-type=DerivO3CPU --mem-size=1GB --mem-type=DDR3_1600_8x8 --sys-clock=1GHz --ruby-clock=1GHz --cacheline_size=64 --accel_cfg_file=/project/.artifacts/warm_n24/integration-test/with-cpu/unchanged_tiled2/gem5.cfg -c /project/.artifacts/warm_n24/integration-test/with-cpu/unchanged_tiled2/gemm_tiled2-gem5-accel
+
+info: Standard input is not a terminal, disabling listeners.
+Global frequency set at 1000000000000 ticks per second
+warn: DRAM device capacity (8192 Mbytes) does not match the address range assigned (1024 Mbytes)
+-------------------------------
+      Setting ScratchPad       
+-------------------------------
+warn: Sockets disabled, not accepting gdb connections
+**** REAL SIMULATION ****
+info: Entering event queue @ 0.  Starting simulation...
+warn: Replacement policy updates recently became the responsibility of SLICC state machines. Make sure to setMRU() near callbacks in .sm files!
+info: Increasing stack size by one page.
+warn: ignoring syscall access(...)
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+info: Received mapping for array A at vaddr 6d0840 of length 2304.
+info: Received mapping for array B at vaddr 6d1180 of length 2304.
+info: Received mapping for array C at vaddr 6d1ac0 of length 2304.
+info: Entering event queue @ 43428000.  Starting simulation...
+-------------------------------
+      Generating DDDG          
+-------------------------------
+-------------------------------
+Num of Nodes: 141554
+Num of Edges: 324240
+Num of Reg Edges: 182687
+Num of MEM Edges: 0
+Num of Control Edges: 141553
+-------------------------------
+[WARNING]: Overlapping array declarations found!
+  A: 0xf86d40 - 0xf86d40
+  B: 0xf876c0 - 0xf876c0
+[WARNING]: Overlapping array declarations found!
+  A: 0xf86d40 - 0xf86d40
+  C: 0xf88040 - 0xf88940
+[WARNING]: Overlapping array declarations found!
+  B: 0xf876c0 - 0xf876c0
+  C: 0xf88040 - 0xf88940
+[WARNING]: Overlapping array declarations found!
+  C: 0xf88040 - 0xf88940
+  B: 0xf876c0 - 0xf876c0
+Overlapping array address ranges can lead to incorrect behavior, such as DMA nodes trying to access the wrong arrays, ACP accessing the wrong memory, etc. Please check your Aladdin configuration file and the mapArrayToAccelerator() calls to verify that they are correct.
+-------------------------------
+    Initializing BaseDatapath      
+-------------------------------
+ Top level: gemm_kernel
+=============================================
+      Optimizing...            ./outputs/gemm_tiled2
+=============================================
+-------------------------------
+  Remove PHI and Convert Nodes 
+-------------------------------
+  Removing 83303 edges.
+  Adding 60189 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+  Remove Induction Dependence  
+-------------------------------
+-------------------------------
+       Init Base Address       
+-------------------------------
+-------------------------------
+     Init DMA Base Address     
+-------------------------------
+-------------------------------
+        Mem to Reg Conv        
+-------------------------------
+-------------------------------
+      ScratchPad Partition     
+-------------------------------
+-------------------------------
+         Loop Flatten          
+-------------------------------
+-------------------------------
+         Loop Unrolling        
+-------------------------------
+No loop unrolling configuration options found.
+-------------------------------
+          Load Buffer          
+-------------------------------
+-------------------------------
+          Store Buffer         
+-------------------------------
+-------------------------------
+    Remove Repeated Stores     
+-------------------------------
+-------------------------------
+      Memory Ambiguation       
+-------------------------------
+  Adding 0 new edges.
+-------------------------------
+     Tree Height Reduction     
+-------------------------------
+-------------------------------
+  Fuse register loads/stores   
+-------------------------------
+  Removing 0 edges.
+  Adding 0 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+   Fuse consecutive branches   
+-------------------------------
+  Removing 0 edges.
+  Adding 0 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+      Per Loop Pipelining      
+-------------------------------
+-------------------------------
+         Loop Pipelining        
+-------------------------------
+Global loop pipelining is not ON.
+=============================================
+      Scheduling...            ./outputs/gemm_tiled2
+=============================================
+  Total connected nodes: 120506
+  Total edges: 280967
+=============================================
+ Current power model supports trig functions running at 10 ns. 
+ Cycle time: 1 is not supported yet. Use 10ns power model instead.
+Cache size                    : 32768
+Block size                    : 8
+Associativity                 : 4
+Read only ports               : 1
+Write only ports              : 3
+Read write ports              : 0
+Single ended read ports       : 0
+Cache banks (UCA)             : 2
+Technology                    : 0.04
+User specified HP   Vdd (v)?  : false
+User specified LSTP Vdd (v)?  : false
+User specified LOP  Vdd (v)?  : false
+Temperature                   : 300
+Tag size                      : 42
+array type                    : Cache
+Model as memory               : false
+Access mode                   : 0
+Data array cell type          : 0
+Data array peripheral type    : 0
+Tag array cell type           : 0
+Tag array peripheral type     : 0
+Optimization target           : 0
+Design objective (UCA wt)     : 0 0 0 100 0
+Design objective (UCA dev)    : 20 100000 100000 100000 100000
+Cache model                   : 0
+Nuca bank                     : 0
+Wire inside mat               : 1
+Wire outside mat              : 1
+Interconnect projection       : 1
+Wire signalling               : 1
+Print level                   : 1
+ECC overhead                  : true
+Page size                     : 8192
+Burst length                  : 8
+Internal prefetch width       : 8
+Force cache config            : false
+Placing subarray out driver vertical?     : true
+Cache size                    : 256
+Block size                    : 4
+Associativity                 : 0
+Read only ports               : 3
+Write only ports              : 1
+Read write ports              : 0
+Single ended read ports       : 0
+Search ports                  : 3
+Cache banks (UCA)             : 1
+Technology                    : 0.04
+User specified HP   Vdd (v)?  : false
+User specified LSTP Vdd (v)?  : false
+User specified LOP  Vdd (v)?  : false
+Temperature                   : 300
+Tag size                      : 42
+array type                    : Cache
+Model as memory               : false
+Access mode                   : 0
+Data array cell type          : 0
+Data array peripheral type    : 0
+Tag array cell type           : 0
+Tag array peripheral type     : 0
+Optimization target           : 0
+Design objective (UCA wt)     : 0 0 0 100 0
+Design objective (UCA dev)    : 20 100000 100000 100000 100000
+Cache model                   : 0
+Nuca bank                     : 0
+Wire inside mat               : 1
+Wire outside mat              : 1
+Interconnect projection       : 1
+Wire signalling               : 1
+Print level                   : 1
+ECC overhead                  : true
+Page size                     : 8192
+Burst length                  : 8
+Internal prefetch width       : 8
+Force cache config            : false
+Placing subarray out driver vertical?     : true
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs/gemm_tiled2
+Top level function: gemm_kernel
+Cycle : 1257 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 203.293 mW
+Idle FU Cycles: 799 cycles
+Avg FU Power: 175.544 mW
+Avg FU Dynamic Power: 168.194 mW
+Avg FU leakage Power: 7.35007 mW
+Avg MEM Power: 27.7489 mW
+Avg MEM Dynamic Power: 23.8343 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.40134e+06 uM^2
+FU Area: 598362 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 72
+Num of Registers (32-bit): 737
+===============================
+        Aladdin Results        
+===============================
+info: Entering event queue @ 45388000.  Starting simulation...
+info: Entering event queue @ 45853000.  Starting simulation...
+GEMM call 0 passed: 0 mismatches
+info: Entering event queue @ 136014000.  Starting simulation...
+-------------------------------
+      Generating DDDG          
+-------------------------------
+-------------------------------
+Num of Nodes: 141554
+Num of Edges: 324240
+Num of Reg Edges: 182687
+Num of MEM Edges: 0
+Num of Control Edges: 141553
+-------------------------------
+[WARNING]: Overlapping array declarations found!
+  A: 0xf86d40 - 0xf86d40
+  B: 0xf876c0 - 0xf876c0
+[WARNING]: Overlapping array declarations found!
+  A: 0xf86d40 - 0xf86d40
+  C: 0xf88040 - 0xf88940
+[WARNING]: Overlapping array declarations found!
+  B: 0xf876c0 - 0xf876c0
+  C: 0xf88040 - 0xf88940
+[WARNING]: Overlapping array declarations found!
+  C: 0xf88040 - 0xf88940
+  B: 0xf876c0 - 0xf876c0
+Overlapping array address ranges can lead to incorrect behavior, such as DMA nodes trying to access the wrong arrays, ACP accessing the wrong memory, etc. Please check your Aladdin configuration file and the mapArrayToAccelerator() calls to verify that they are correct.
+-------------------------------
+    Initializing BaseDatapath      
+-------------------------------
+ Top level: gemm_kernel
+=============================================
+      Optimizing...            ./outputs/gemm_tiled2
+=============================================
+-------------------------------
+  Remove PHI and Convert Nodes 
+-------------------------------
+  Removing 83303 edges.
+  Adding 60189 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+  Remove Induction Dependence  
+-------------------------------
+-------------------------------
+       Init Base Address       
+-------------------------------
+-------------------------------
+     Init DMA Base Address     
+-------------------------------
+-------------------------------
+      ScratchPad Partition     
+-------------------------------
+-------------------------------
+         Loop Flatten          
+-------------------------------
+-------------------------------
+         Loop Unrolling        
+-------------------------------
+No loop unrolling configuration options found.
+-------------------------------
+          Load Buffer          
+-------------------------------
+-------------------------------
+          Store Buffer         
+-------------------------------
+-------------------------------
+    Remove Repeated Stores     
+-------------------------------
+-------------------------------
+      Memory Ambiguation       
+-------------------------------
+  Adding 0 new edges.
+-------------------------------
+     Tree Height Reduction     
+-------------------------------
+-------------------------------
+  Fuse register loads/stores   
+-------------------------------
+  Removing 0 edges.
+  Adding 0 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+   Fuse consecutive branches   
+-------------------------------
+  Removing 0 edges.
+  Adding 0 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+      Per Loop Pipelining      
+-------------------------------
+-------------------------------
+         Loop Pipelining        
+-------------------------------
+Global loop pipelining is not ON.
+=============================================
+      Scheduling...            ./outputs/gemm_tiled2
+=============================================
+  Total connected nodes: 120506
+  Total edges: 280967
+=============================================
+ Current power model supports trig functions running at 10 ns. 
+ Cycle time: 1 is not supported yet. Use 10ns power model instead.
+Cache size                    : 32768
+Block size                    : 8
+Associativity                 : 4
+Read only ports               : 1
+Write only ports              : 3
+Read write ports              : 0
+Single ended read ports       : 0
+Cache banks (UCA)             : 2
+Technology                    : 0.04
+User specified HP   Vdd (v)?  : false
+User specified LSTP Vdd (v)?  : false
+User specified LOP  Vdd (v)?  : false
+Temperature                   : 300
+Tag size                      : 42
+array type                    : Cache
+Model as memory               : false
+Access mode                   : 0
+Data array cell type          : 0
+Data array peripheral type    : 0
+Tag array cell type           : 0
+Tag array peripheral type     : 0
+Optimization target           : 0
+Design objective (UCA wt)     : 0 0 0 100 0
+Design objective (UCA dev)    : 20 100000 100000 100000 100000
+Cache model                   : 0
+Nuca bank                     : 0
+Wire inside mat               : 1
+Wire outside mat              : 1
+Interconnect projection       : 1
+Wire signalling               : 1
+Print level                   : 1
+ECC overhead                  : true
+Page size                     : 8192
+Burst length                  : 8
+Internal prefetch width       : 8
+Force cache config            : false
+Placing subarray out driver vertical?     : true
+Cache size                    : 256
+Block size                    : 4
+Associativity                 : 0
+Read only ports               : 3
+Write only ports              : 1
+Read write ports              : 0
+Single ended read ports       : 0
+Search ports                  : 3
+Cache banks (UCA)             : 1
+Technology                    : 0.04
+User specified HP   Vdd (v)?  : false
+User specified LSTP Vdd (v)?  : false
+User specified LOP  Vdd (v)?  : false
+Temperature                   : 300
+Tag size                      : 42
+array type                    : Cache
+Model as memory               : false
+Access mode                   : 0
+Data array cell type          : 0
+Data array peripheral type    : 0
+Tag array cell type           : 0
+Tag array peripheral type     : 0
+Optimization target           : 0
+Design objective (UCA wt)     : 0 0 0 100 0
+Design objective (UCA dev)    : 20 100000 100000 100000 100000
+Cache model                   : 0
+Nuca bank                     : 0
+Wire inside mat               : 1
+Wire outside mat              : 1
+Interconnect projection       : 1
+Wire signalling               : 1
+Print level                   : 1
+ECC overhead                  : true
+Page size                     : 8192
+Burst length                  : 8
+Internal prefetch width       : 8
+Force cache config            : false
+Placing subarray out driver vertical?     : true
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs/gemm_tiled2
+Top level function: gemm_kernel
+Cycle : 679 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 363.34 mW
+Idle FU Cycles: 29 cycles
+Avg FU Power: 315.091 mW
+Avg FU Dynamic Power: 309.586 mW
+Avg FU leakage Power: 5.50409 mW
+Avg MEM Power: 48.2494 mW
+Avg MEM Dynamic Power: 44.3348 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.24988e+06 uM^2
+FU Area: 446902 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 32
+Num of Registers (32-bit): 1273
+===============================
+        Aladdin Results        
+===============================
+info: Entering event queue @ 137090000.  Starting simulation...
+info: Entering event queue @ 137327000.  Starting simulation...
+GEMM call 1 passed: 0 mismatches
+info: Entering event queue @ 217280000.  Starting simulation...
+-------------------------------
+      Generating DDDG          
+-------------------------------
+-------------------------------
+Num of Nodes: 141554
+Num of Edges: 324240
+Num of Reg Edges: 182687
+Num of MEM Edges: 0
+Num of Control Edges: 141553
+-------------------------------
+[WARNING]: Overlapping array declarations found!
+  A: 0xf86d40 - 0xf86d40
+  B: 0xf876c0 - 0xf876c0
+[WARNING]: Overlapping array declarations found!
+  A: 0xf86d40 - 0xf86d40
+  C: 0xf88040 - 0xf88940
+[WARNING]: Overlapping array declarations found!
+  B: 0xf876c0 - 0xf876c0
+  C: 0xf88040 - 0xf88940
+[WARNING]: Overlapping array declarations found!
+  C: 0xf88040 - 0xf88940
+  B: 0xf876c0 - 0xf876c0
+Overlapping array address ranges can lead to incorrect behavior, such as DMA nodes trying to access the wrong arrays, ACP accessing the wrong memory, etc. Please check your Aladdin configuration file and the mapArrayToAccelerator() calls to verify that they are correct.
+-------------------------------
+    Initializing BaseDatapath      
+-------------------------------
+ Top level: gemm_kernel
+=============================================
+      Optimizing...            ./outputs/gemm_tiled2
+=============================================
+-------------------------------
+  Remove PHI and Convert Nodes 
+-------------------------------
+  Removing 83303 edges.
+  Adding 60189 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+  Remove Induction Dependence  
+-------------------------------
+-------------------------------
+       Init Base Address       
+-------------------------------
+-------------------------------
+     Init DMA Base Address     
+-------------------------------
+-------------------------------
+      ScratchPad Partition     
+-------------------------------
+-------------------------------
+         Loop Flatten          
+-------------------------------
+-------------------------------
+         Loop Unrolling        
+-------------------------------
+No loop unrolling configuration options found.
+-------------------------------
+          Load Buffer          
+-------------------------------
+-------------------------------
+          Store Buffer         
+-------------------------------
+-------------------------------
+    Remove Repeated Stores     
+-------------------------------
+-------------------------------
+      Memory Ambiguation       
+-------------------------------
+  Adding 0 new edges.
+-------------------------------
+     Tree Height Reduction     
+-------------------------------
+-------------------------------
+  Fuse register loads/stores   
+-------------------------------
+  Removing 0 edges.
+  Adding 0 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+   Fuse consecutive branches   
+-------------------------------
+  Removing 0 edges.
+  Adding 0 new edges.
+  Removing 0 isolated nodes.
+-------------------------------
+      Per Loop Pipelining      
+-------------------------------
+-------------------------------
+         Loop Pipelining        
+-------------------------------
+Global loop pipelining is not ON.
+=============================================
+      Scheduling...            ./outputs/gemm_tiled2
+=============================================
+  Total connected nodes: 120506
+  Total edges: 280967
+=============================================
+ Current power model supports trig functions running at 10 ns. 
+ Cycle time: 1 is not supported yet. Use 10ns power model instead.
+Cache size                    : 32768
+Block size                    : 8
+Associativity                 : 4
+Read only ports               : 1
+Write only ports              : 3
+Read write ports              : 0
+Single ended read ports       : 0
+Cache banks (UCA)             : 2
+Technology                    : 0.04
+User specified HP   Vdd (v)?  : false
+User specified LSTP Vdd (v)?  : false
+User specified LOP  Vdd (v)?  : false
+Temperature                   : 300
+Tag size                      : 42
+array type                    : Cache
+Model as memory               : false
+Access mode                   : 0
+Data array cell type          : 0
+Data array peripheral type    : 0
+Tag array cell type           : 0
+Tag array peripheral type     : 0
+Optimization target           : 0
+Design objective (UCA wt)     : 0 0 0 100 0
+Design objective (UCA dev)    : 20 100000 100000 100000 100000
+Cache model                   : 0
+Nuca bank                     : 0
+Wire inside mat               : 1
+Wire outside mat              : 1
+Interconnect projection       : 1
+Wire signalling               : 1
+Print level                   : 1
+ECC overhead                  : true
+Page size                     : 8192
+Burst length                  : 8
+Internal prefetch width       : 8
+Force cache config            : false
+Placing subarray out driver vertical?     : true
+Cache size                    : 256
+Block size                    : 4
+Associativity                 : 0
+Read only ports               : 3
+Write only ports              : 1
+Read write ports              : 0
+Single ended read ports       : 0
+Search ports                  : 3
+Cache banks (UCA)             : 1
+Technology                    : 0.04
+User specified HP   Vdd (v)?  : false
+User specified LSTP Vdd (v)?  : false
+User specified LOP  Vdd (v)?  : false
+Temperature                   : 300
+Tag size                      : 42
+array type                    : Cache
+Model as memory               : false
+Access mode                   : 0
+Data array cell type          : 0
+Data array peripheral type    : 0
+Tag array cell type           : 0
+Tag array peripheral type     : 0
+Optimization target           : 0
+Design objective (UCA wt)     : 0 0 0 100 0
+Design objective (UCA dev)    : 20 100000 100000 100000 100000
+Cache model                   : 0
+Nuca bank                     : 0
+Wire inside mat               : 1
+Wire outside mat              : 1
+Interconnect projection       : 1
+Wire signalling               : 1
+Print level                   : 1
+ECC overhead                  : true
+Page size                     : 8192
+Burst length                  : 8
+Internal prefetch width       : 8
+Force cache config            : false
+Placing subarray out driver vertical?     : true
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs/gemm_tiled2
+Top level function: gemm_kernel
+Cycle : 679 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 363.34 mW
+Idle FU Cycles: 29 cycles
+Avg FU Power: 315.091 mW
+Avg FU Dynamic Power: 309.586 mW
+Avg FU leakage Power: 5.50409 mW
+Avg MEM Power: 48.2494 mW
+Avg MEM Dynamic Power: 44.3348 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.24988e+06 uM^2
+FU Area: 446902 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 32
+Num of Registers (32-bit): 1273
+===============================
+        Aladdin Results        
+===============================
+info: Entering event queue @ 218337000.  Starting simulation...
+info: Entering event queue @ 218558000.  Starting simulation...
+GEMM call 2 passed: 0 mismatches
+GEMM passed: 0 mismatches
+GEMM per-call total: 0 mismatches across 3 calls
+Exiting @ tick 352456000 because exiting with last active thread context

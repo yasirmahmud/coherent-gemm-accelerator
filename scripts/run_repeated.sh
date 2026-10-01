@@ -33,6 +33,8 @@ case "$variant" in
   *) echo "variant must be base, tiled2, or tiled4" >&2; exit 2 ;;
 esac
 
+[[ "$n" =~ ^[0-9]+$ && "$reps" =~ ^[0-9]+$ ]] && (( n > 0 && reps >= 2 )) || { echo 'N must be positive and REPS >=2.' >&2; exit 2; }
+[[ -z "$independent" || "$independent" == --independent-mutation ]] || { echo 'Unknown repeated-run option.' >&2; exit 2; }
 extra_flags=""
 suffix=""
 if [[ "$independent" == "--independent-mutation" ]]; then
@@ -43,11 +45,13 @@ fi
 project_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 image='xyzsam/gem5-aladdin@sha256:03b405408f17ceab194b08e03c986fcffd3ed10486d3443bd17eda87b33bee92'
 volume=${COHERENT_GEMM_VOLUME:-coherent-gemm-source}
-command -v docker >/dev/null || { echo 'Docker (or a docker-shimmed Podman) is required.' >&2; exit 1; }
+engine=${COHERENT_GEMM_CONTAINER_ENGINE:-docker}
+command -v "$engine" >/dev/null || { echo 'Docker (or a docker-shimmed Podman) is required.' >&2; exit 1; }
 
 output_name="repeated_n${n}_reps${reps}_${variant}${suffix}"
+[[ ! -e "$project_root/results/diagnostics/$output_name" ]] || { echo "Refusing to overwrite $output_name" >&2; exit 2; }
 
-docker run --rm \
+"$engine" run --rm \
   -e ALADDIN_HOME=/worksrc/src/aladdin \
   -e TRACER_HOME=/workspace/LLVM-Tracer \
   -e LLVM_HOME=/usr/local \
@@ -87,3 +91,10 @@ echo \"=== per-call results ===\"
 grep -E 'GEMM (call|per-call)' \"\$output/gem5-accel.log\" || true
 echo \"Completed ${variant} N=${n} REPS=${reps}${suffix}. See \$output/\"
 "
+
+python3 - "$project_root/results/diagnostics/$output_name" "$reps" <<'PYMETA'
+import json, sys
+from pathlib import Path
+(Path(sys.argv[1]) / 'run.json').write_text(json.dumps({'expected_calls': int(sys.argv[2])}) + '\n')
+PYMETA
+python3 "$project_root/scripts/summarize_repeated.py" "$project_root/results/diagnostics/$output_name" --expected-calls "$reps"

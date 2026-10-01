@@ -1,0 +1,26 @@
+[
+  {
+    "name": "gemm_acp_pilot.c",
+    "sha256": "4cfa90db5e950cd4dcbcd8c1c7ccd261f7afa3c9c9b3a28f3b2ef5074249d4e5"
+  },
+  {
+    "name": "gemm_acp_pilot-gem5",
+    "sha256": "7c81126766ea9623a0822017968bf1b20dc98ceed8eb9e26f34551e69c9e108f"
+  },
+  {
+    "name": "gemm_acp_pilot-gem5-accel",
+    "sha256": "a3d650fbc67a5df8090cd069867315a4108dcd0715ef389705296d4f8df9929a"
+  },
+  {
+    "name": "gem5_cache.cfg",
+    "sha256": "d981887384f039c77fa215df2df5b62b725b91b9745e79ef4e3142e6d54eedbb"
+  },
+  {
+    "name": "gemm_cache_pilot.cfg",
+    "sha256": "7432ee7dfecbaa81cabd9eeaff8a1ab53fe6634a1da94f8173e7066c48bc0333"
+  },
+  {
+    "name": "trace-build.log",
+    "sha256": "7e8d70caf019aeb15efce3828f332a79ec02c41b5f28196823a57ae7f90fa9f5"
+  }
+]

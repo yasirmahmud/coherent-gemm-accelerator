@@ -16,3 +16,8 @@ LICENSE text eol=lf
 # Preserve archived experiment bytes so SHA256SUMS survives checkout.
 results/cache_bandwidth/** -text
 results/reproductions/** -text
+results/diagnostics/graph_n24/** -text
+results/diagnostics/warm_n24/** -text
+results/provenance/** -text
+results/analysis/** -text
+paper/** -text

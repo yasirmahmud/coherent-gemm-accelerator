@@ -1,0 +1,25 @@
+{
+  "expected_calls": 3,
+  "trace_sha256": "42415c07922cbc40c34b93235b1670cd580e847e5511c1d1481fd8bbc58ebb35",
+  "trace_verified": false,
+  "calls": [
+    {
+      "call": 0,
+      "mismatches": 0,
+      "completion_ticks": 2295000,
+      "offload_ticks": 2736000
+    },
+    {
+      "call": 1,
+      "mismatches": 0,
+      "completion_ticks": 1052000,
+      "offload_ticks": 1261000
+    },
+    {
+      "call": 2,
+      "mismatches": 0,
+      "completion_ticks": 943000,
+      "offload_ticks": 1108000
+    }
+  ]
+}

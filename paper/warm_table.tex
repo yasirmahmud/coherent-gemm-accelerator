@@ -1,0 +1,12 @@
+\begin{table}[htbp]\centering\small
+\begin{tabular}{lrrrr}\toprule
+Input & $w$ & Checked cycles (0/1/2) & Timed cycles (0/1/2) & Timed offload (ns; 0/1/2) \\ \midrule
+matched & 1 & 1452/624/628 & 1452/246/229 & 2886/772/608 \\
+matched & 2 & 1257/666/666 & 1257/246/229 & 2833/772/608 \\
+matched & 4 & 1133/683/687 & 1133/246/228 & 2612/772/607 \\
+unchanged & 1 & 1452/630/627 & 1452/227/227 & 2681/819/669 \\
+unchanged & 2 & 1257/679/679 & 1257/227/227 & 2486/819/669 \\
+unchanged & 4 & 1133/696/696 & 1133/246/228 & 2362/838/670 \\
+\bottomrule\end{tabular}
+\caption{Three-call $N=24$ diagnostics. Checker and timed harnesses have different cache histories; full per-call checks pass in the checker runs.}
+\end{table}

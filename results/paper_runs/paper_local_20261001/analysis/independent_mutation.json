@@ -1,0 +1,35 @@
+[
+  {
+    "width": 1,
+    "outcome": "rejected for incorrect output",
+    "expected_calls": 3,
+    "mismatch_counts": [
+      20,
+      24,
+      19
+    ],
+    "raw": "results/paper_runs/paper_local_20261001/negative/base"
+  },
+  {
+    "width": 2,
+    "outcome": "rejected for incorrect output",
+    "expected_calls": 3,
+    "mismatch_counts": [
+      20,
+      24,
+      19
+    ],
+    "raw": "results/paper_runs/paper_local_20261001/negative/tiled2"
+  },
+  {
+    "width": 4,
+    "outcome": "rejected for incorrect output",
+    "expected_calls": 3,
+    "mismatch_counts": [
+      20,
+      24,
+      19
+    ],
+    "raw": "results/paper_runs/paper_local_20261001/negative/tiled4"
+  }
+]

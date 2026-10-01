@@ -20,4 +20,6 @@ results/diagnostics/graph_n24/** -text
 results/diagnostics/warm_n24/** -text
 results/provenance/** -text
 results/analysis/** -text
+results/paper_runs/** -text
+results/diagnostics/paper_*/** -text
 paper/** -text

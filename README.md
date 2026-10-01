@@ -147,4 +147,9 @@ Completed the [immediate execution checklist](docs/IMMEDIATE_NEXT_STEPS.md).
 The [mechanism diagnostics](docs/MECHANISM_DIAGNOSTICS.md) link the passive
 observer, strict repeated-call checks, aggregate cache analysis, historical
 provenance inventory and reproducible width figures. The [final paper](paper/final_paper.pdf)
-retains negative findings and explicitly scopes unavailable historical evidence.
+retains negative findings and uses the fresh experiment suite described below.
+
+The [final IEEE paper](paper/final_paper.pdf) uses the freshly executed
+[complete paper experiment suite](docs/PAPER_EXPERIMENTS.md), including all
+three widths at all four matrix sizes. Its data selection and numerical
+claims are generated from validated retained evidence.

@@ -1,0 +1,14 @@
+/workspace/LLVM-Tracer/bin/get-labeled-stmts gemm_tiled4.c -- -I/usr/local/lib/clang/6.0.0/include -I/worksrc/src/aladdin -I/worksrc/src/aladdin/gem5 -I/project/.artifacts/paper_local_20261001_negative_tiled4/integration-test/common/ -DLLVM_TRACE -DN=24 -DREPS=3
+"/usr/local/bin/clang-6.0" "-cc1" "-triple" "x86_64-unknown-linux-gnu" "-emit-llvm" "-disable-free" "-main-file-name" "gemm_tiled4.c" "-static-define" "-mrelocation-model" "static" "-mthread-model" "posix" "-fmath-errno" "-masm-verbose" "-mconstructor-aliases" "-munwind-tables" "-fuse-init-array" "-target-cpu" "x86-64" "-dwarf-column-info" "-debug-info-kind=limited" "-dwarf-version=4" "-debugger-tuning=gdb" "-momit-leaf-frame-pointer" "-coverage-notes-file" "/project/.artifacts/paper_local_20261001_negative_tiled4/integration-test/with-cpu/tiled4/gemm_tiled4.gcno" "-resource-dir" "/usr/local/lib/clang/6.0.0" "-I" "/worksrc/src/aladdin" "-I" "/worksrc/src/aladdin/gem5" "-I" "/project/.artifacts/paper_local_20261001_negative_tiled4/integration-test/common/" "-D" "LLVM_TRACE" "-I" "/worksrc/src/aladdin/gem5" "-D" "LLVM_TRACE" "-D" "N=24" "-D" "REPS=3" "-internal-isystem" "/usr/local/include" "-internal-isystem" "/usr/local/lib/clang/6.0.0/include" "-internal-externc-isystem" "/usr/include/x86_64-linux-gnu" "-internal-externc-isystem" "/include" "-internal-externc-isystem" "/usr/include" "-O1" "-fdebug-compilation-dir" "/project/.artifacts/paper_local_20261001_negative_tiled4/integration-test/with-cpu/tiled4" "-ferror-limit" "19" "-fmessage-length" "0" "-fno-unroll-loops" "-fno-builtin" "-fno-inline" "-fobjc-runtime=gcc" "-fdiagnostics-show-option" "-o" "gemm_tiled4.llvm" "-x" "c" "gemm_tiled4.c"
+opt -S -load=/workspace/LLVM-Tracer/lib/full_trace.so -fulltrace -labelmapwriter gemm_tiled4.llvm -o gemm_tiled4-opt.llvm
+llvm-link -o full.llvm gemm_tiled4-opt.llvm /workspace/LLVM-Tracer/lib/trace_logger.llvm
+llc -O0 -disable-fp-elim -filetype=asm -o full.s full.llvm
+g++ -no-pie -O0 -fno-inline -o gemm_tiled4-instrumented full.s -lm -lz -lpthread
+./gemm_tiled4-instrumented
+dynamic_trace.gz: Starting to log at inst = 0.
+dynamic_trace.gz: Stopping logging at inst 113186.
+dynamic_trace.gz: Starting to log at inst = 0.
+dynamic_trace.gz: Stopping logging at inst 113186.
+dynamic_trace.gz: Starting to log at inst = 0.
+dynamic_trace.gz: Stopping logging at inst 113186.
+GEMM passed: 0 mismatches

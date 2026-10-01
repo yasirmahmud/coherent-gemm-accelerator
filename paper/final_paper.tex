@@ -1,226 +1,244 @@
-\documentclass[10pt,letterpaper]{article}
-\usepackage[margin=0.75in]{geometry}
-\usepackage[T1]{fontenc}
-\usepackage{lmodern,microtype,amsmath,booktabs,graphicx,xcolor,hyperref,float}
-\hypersetup{colorlinks=true,urlcolor=blue!50!black,linkcolor=blue!50!black}
-\title{Output-Column Reuse in a Coherent GEMM Accelerator:\\Tile Width, Request Issue Capacity, and Trace-Model Limits}
-\author{Yasir Mahmud \and Rasin Mohammed Ihtemam \and Mohyeu Hussain}
-\date{September 30, 2026}
-\setlength{\emergencystretch}{1em}
+\RequirePackage[T1]{fontenc}
+\documentclass[conference,letterpaper]{IEEEtran}
+\usepackage{cite}
+\usepackage{amsmath,amssymb,booktabs,graphicx}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+\title{Output-Column Reuse in a Coherent GEMM Accelerator:
+Tile Width and Memory-System Effects}
+\author{\IEEEauthorblockN{Yasir Mahmud, Rasin Mohammed Ihtemam, and Mohyeu Hussain}
+\IEEEauthorblockA{EEL 5764: Computer Architecture\\Fall 2026}}
+\input{result_macros.tex}
 \begin{document}
 \maketitle
 \begin{abstract}
-We study integer GEMM in pinned gem5-Aladdin with output-column widths 1, 2,
+We study integer GEMM in gem5-Aladdin with output-column widths 1, 2,
 and 4, a coherent accelerator cache, and a bounded request queue. Wider tiles
 reduce datapath and host-observed offload latency, but their modeled area
-tradeoff depends on workload size. At $N=24$, an independently built passive
-observer verifies that source and connected-graph $A$ loads decrease with
-width while accepted and returned data-cache requests remain unchanged.
-A separate issue-limit sweep supports an interaction between tile width and
-request throughput. Repeated-call experiments separate correctness checks
-from timing and expose different cache histories and resource peaks. These
-results support a bounded dataflow study, not arbitrary runtime-input
-correctness or a unique cache-miss cause.
+tradeoff depends on workload size. At $N=24$, a passive observer verifies
+that source and connected-graph $A$ loads decrease with width while accepted
+and returned data-cache requests remain unchanged. A separate issue-limit
+sweep shows an interaction between tile width and request throughput.
+Repeated-call experiments separate correctness checks from timing and reveal
+different cache histories. These results establish the benefits and limits
+of output-column reuse for the tested trace-driven workloads.
 \end{abstract}
+\begin{IEEEkeywords}
+GEMM, accelerator dataflow, cache coherence, gem5-Aladdin,
+memory interfaces, pre-RTL modeling.
+\end{IEEEkeywords}
 
-\section{Research question and method}
+\section{Introduction and Experimental Method}
+Aladdin models accelerators from dynamic data-dependence graphs before
+RTL generation~\cite{aladdin}. gem5-Aladdin integrates this approach with
+CPU and memory-system simulation~\cite{gem5aladdin}. We use these tools
+to separate source-level reuse, cache-request traffic, and host-observed
+latency in integer GEMM.
 The baseline computes one output $C_{ij}=\sum_k A_{ik}B_{kj}$ at a time.
 Widths $w=2,4$ update adjacent columns together, sharing each $A_{ik}$ value
 across $w$ accumulators. Source-level $A$ loads fall from $N^3$ to $N^3/w$;
 $B$ loads, products, and accumulation updates remain $N^3$, with $N^2$ output
-stores. These are loop-operation counts, not cache-request counts.
+stores. These loop-operation counts need not equal cache-request counts.
 We ask how width changes offload latency and modeled resource demand, and
 whether a tighter cache-request issue limit suppresses the width benefit.
 
-The model uses gem5-Aladdin commit
-\texttt{d4efbee56d71f9609eab85393eff58f5dbf7763c}, Aladdin submodule commit
-\texttt{448b8f41865003e20eee0bdbd7a73febb5c3abe3}, and the common finite-queue
-patch. One 8-wide x86 \texttt{DerivO3CPU} runs at 2 GHz with a 192-entry ROB
-and 32-entry load/store queues. Ruby MESI two-level coherence uses 64 kB
-L1D, 32 kB L1I, 2 MB L2, and 1 GB DDR3-1600. The accelerator has a 32 kB,
-four-way cache, 64-byte lines, a 32-entry request queue, and a 1 ns cycle.
-System and Ruby clocks are 1 GHz. The issue limit controls requests per
-accelerator cycle; it is not DRAM bandwidth or a physical cache-port count.
+\begin{figure*}[!t]\centering
+\includegraphics[width=\linewidth]{figures/architecture.pdf}
+\caption{Overall simulated architecture. The host invokes the trace-driven GEMM accelerator, whose datapath accesses shared arrays through a bounded request queue and private coherent cache. Solid arrows show bidirectional memory traffic; dashed arrows show invocation and trace inputs. Tile width and request issue limit are the experimental variables.}\label{fig:architecture}
+\end{figure*}
 
-\paragraph{Cohorts and correctness.}
-The three-width comparisons use the published $N=24$ cohort and the
-recovered \texttt{ece-lnx-10\_2026-09-30} $N=32$ cohort separately. No
-cross-cohort baseline is used. Each point has full CPU and accelerator
-output checks, matched ROI/invocation checksums, and matched accelerator-host
-instruction counts within its size. The new $N=24$ bandwidth cohort crosses
-widths 1/4 with issue limits 1/2/4, sharing a trace per kernel. The graph
-observer and repeated-call diagnostics are separate cohorts, not replacements
-for the historical main results. Negative correctness evidence is retained.
+Figure~\ref{fig:architecture} shows the system modeled with
+gem5-Aladdin~\cite{gem5code,aladdincode}. An out-of-order x86 host and the
+accelerator share a Ruby MESI coherent memory system with a 2 MB L2 cache
+and 1 GB DDR3 memory. The accelerator replays a kernel dependence graph;
+its memory requests pass through a 32-entry queue to a 32 kB, four-way
+private cache with 64-byte lines. Each accelerator cycle is 1 ns. We vary
+the output-column width and the number of requests allowed per accelerator
+cycle while holding the remaining configuration fixed.
 
-\paragraph{Timing and cost.}
-Offload time sums reset-to-datapath-completion and completion-to-host-return
-statistics segments. Datapath cycles are reported separately; whole-program
-ROI ticks include process setup and host work. CPU speedup compares the same
-kernel's CPU and accelerator whole-program time. Area is the pre-RTL model's
-functional-unit plus memory estimate from the full correctness stage;
-it is not a post-layout implementation result. We do not derive physical
-port cost or energy savings from the issue-limit sweep's fixed CACTI inputs.
+\subsection{Datasets and Correctness}
+We evaluate $N=8,16,24,32$ and widths 1, 2, and 4 using one fixed simulator
+build and configuration. Each experiment uses a freshly generated trace
+and freshly compiled CPU and accelerator programs. Their
+outputs are checked against the same integer GEMM calculation. A separate
+$N=24$ experiment crosses widths 1 and 4 with issue limits 1, 2, and 4,
+reusing one trace per kernel. Graph instrumentation and repeated-call
+experiments provide additional evidence about memory traffic and cache
+history.
 
-\section{Width, size, and modeled area}
+\subsection{Timing and Cost}
+Offload time runs from accelerator invocation through datapath completion
+to host return. We report datapath time separately. Whole-program timing
+includes process setup and host work, and CPU speedup compares the CPU and
+accelerator execution of the same kernel. Area combines the model's
+functional-unit and memory estimates; it is a pre-RTL estimate. The
+issue-limit sweep changes request throughput without modeling the physical
+area or energy of additional cache ports.
+
+\section{Width, Size, and Modeled Area}
 \input{width_table.tex}
+\begin{figure*}[!t]\centering
+\includegraphics[width=\linewidth]{figures/width_latency.pdf}
+\caption{Width versus latency, compared separately at each matrix size.}\label{fig:width}
+\end{figure*}
+
+\begin{figure*}[!t]\centering
+\includegraphics[width=\textwidth]{figures/latency_area.pdf}
+\caption{Offload latency versus total modeled area, with functional-unit and memory estimates shown below. Crosses denote dominated points; hatched bars show memory area.}\label{fig:area}
+\end{figure*}
+\begin{figure}[!t]\centering
+\includegraphics[width=\columnwidth]{figures/cpu_speedup_size.pdf}
+\caption{Same-kernel whole-program CPU speedup across all four matrix sizes. Color, line style, and marker distinguish tile widths.}\label{fig:cpu}
+\end{figure}
+
+Table~\ref{tab:width} summarizes the main comparisons.
 Figure~\ref{fig:width} shows diminishing offload-latency improvements from
 increasing width. At $N=24$, width 4 dominates widths 1 and 2 on measured
-offload latency and printed modeled total area. At $N=32$, width 1 and width
+offload latency and modeled total area. At $N=32$, width 1 and width
 4 remain choices: width 1 uses less modeled area, while width 4 is faster.
-Width 2 is dominated by width 4. Dominance is defined only within a fixed
-size/cohort, using no-greater latency and area with at least one strict
-improvement. It does not establish a universally preferred tile width.
+Width 2 is dominated by width 4. A point is dominated when another width
+is no slower and uses no more area, with a strict improvement in at least
+one metric. This comparison applies within each matrix size.
+Figure~\ref{fig:area} shows these choices and separates functional-unit
+and memory estimates.
 
-The same-kernel CPU comparisons in Fig.~\ref{fig:cpu} retain the small-workload
-negative result: width 4 is slower than the CPU at $N=8$ (0.869$\times$) and
-$N=16$ (0.957$\times$), but faster at $N=24$ (1.173$\times$) and in the
-recovered $N=32$ cohort (1.524$\times$). Published width-4 whole-program
-reductions relative to width 1 are 0.000\%, 0.446\%, and 0.474\% at
-$N=8,16,24$; the recovered $N=32$ reduction is 1.178\%. A local datapath or
+The same-kernel CPU comparisons in Fig.~\ref{fig:cpu} show that
+width 4 is slower than the CPU at $N=8$ (\SpeedupEight$\times$) and
+$N=16$ (\SpeedupSixteen$\times$), but faster at $N=24$ (\SpeedupTwentyFour$\times$) and
+$N=32$ (\SpeedupThirtyTwo$\times$). Width-4 whole-program
+reductions relative to width 1 are \ProgramReductionEight\%, \ProgramReductionSixteen\%, and \ProgramReductionTwentyFour\% at
+$N=8,16,24$; the $N=32$ reduction is \ProgramReductionThirtyTwo\%. A local datapath or
 offload improvement can therefore be much larger than the application gain.
-The figure labels the exploratory and historical cohorts explicitly.
 
-\begin{figure}[htbp]\centering
-\includegraphics[width=\linewidth]{../results/analysis/width_latency.pdf}
-\caption{Width versus latency. Historical $N=24$ and recovered $N=32$ are separate comparisons.}\label{fig:width}
-\end{figure}
-\begin{figure}[htbp]\centering
-\includegraphics[width=.88\linewidth]{../results/analysis/cpu_speedup_size.pdf}
-\caption{Whole-program CPU speedup, with cohort labels and the small-size crossover.}\label{fig:cpu}
-\end{figure}
-\begin{figure}[htbp]\centering
-\includegraphics[width=.9\linewidth]{../results/analysis/latency_area.pdf}
-\caption{Offload/total-area choices and separate functional-unit/memory estimates. Crosses denote dominated points.}\label{fig:area}
-\end{figure}
-
-\section{What survives from graph to memory}
-We first inspected retained optimization logs and model reports. They expose
-node/edge totals, connected-node counts, timing, and resource estimates, but
-not per-array operation totals or accepted-request counts. A passive
-observer was therefore built in a separate source/build copy, preserving the
-reference simulator. Each width reused one trace across reference and
-instrumented runs, and each stage reused one guest binary. All full-output
-checks passed. Every simulated statistics block and effective configuration
-matched its reference; only host wall-time, rate, and memory measurements
-were excluded from equality checks.
+\section{From Graph Operations to Memory Requests}
+To connect source-level reuse to memory traffic, we instrumented the
+optimized dependence graph and cache-request interface. Instrumented and
+reference runs used the same traces and executables, passed output checks,
+and produced matching simulated statistics. This verifies that the observer
+does not change the measured behavior.
 
 \input{graph_table.tex}
-The observer counts all graph objects and connected operations before and
-after global optimization. GEMM arithmetic is a backward value slice from
-$C$ store-value operands, stopping at loads and address generation and
-excluding control/memory edges. Address/index arithmetic is counted
-separately; integer adds are not all multiply-accumulates. Connected $A$
+Table~\ref{tab:graph} connects source and graph operations to accepted requests.
+The observer counts connected operations before and after optimization.
+It separates GEMM arithmetic contributing to $C$ from address calculations
+and control operations. Connected $A$
 loads retain the source reduction, while products and accumulation adds
-remain 13,824 for every width. Nevertheless all three widths accept and
-return 36 $A$ loads, 36 $B$ loads, and 576 $C$ stores.
+remain \GraphProducts{} and \GraphAdds{}, respectively, for every width.
+Nevertheless all three widths accept and return \AcceptedALoads{} $A$
+loads, \AcceptedBLoads{} $B$ loads, and \AcceptedCStores{} $C$ stores.
 
-The cache queue merges loads by cache-line address. Queue-join counters
-record each node's first association with an existing queue entry, rather
-than every polling attempt. Accepted packets separate initial sends and
-successful retry sends; responses reconcile per array with the existing
-returned-operation counters. Initial send rejections and blocked node polls
-are recorded separately. Distinct blocked ticks prevent multiple polls in
-one cycle from inflating blocked-cycle counts. Issue-limit blocked cycles
-are 58, 23, and 13 for widths 1, 2, and 4. Queue-full blocked cycles are
-1,131, 968, and 852. These observations explain unchanged request traffic
-and differing scheduling opportunities without establishing one unique
-latency bottleneck. Successful-retry counts do not count retry notifications
-that remain blocked.
+The cache queue merges loads to the same cache line, explaining why fewer
+graph loads need not produce fewer accepted requests. Issue-limit blocked
+cycles are \IssueBlockedCycles{} for widths 1, 2, and 4. Queue-full blocked
+cycles are \QueueBlockedCycles{}. These observations explain unchanged request
+traffic and differing scheduling opportunities without establishing one
+unique latency bottleneck.
 
-\section{Issue capacity and aggregate cache evidence}
-In the existing bandwidth cohort, width-4 offload reductions relative to the
-matched width-1 point are 4.669\%, 7.268\%, and 12.033\% at issue limits
-1, 2, and 4. Across all six points, completion time exceeds datapath duration
-by 728 ns and host return takes 471 ns: offload time equals datapath time
-plus 1.199 $\mu$s. These are measured residuals in this cohort, without a
-causal decomposition of the residual. Historical absolute offload values
-are different and are not substituted into this comparison.
+\section{Issue Capacity and Aggregate Cache Evidence}
+In the issue-limit experiment (Fig.~\ref{fig:bandwidth}), width-4 offload
+reductions relative to the matched width-1 point are \IssueLimitBenefits{}
+at issue limits 1, 2, and 4. Across all six points, completion time
+exceeds datapath duration by \CompletionResidualNs{} ns and host return
+takes \HostReturnNs{} ns: offload time equals datapath time plus
+\OffloadResidualUs{} $\mu$s. This is a measured timing offset whose
+components have not been causally isolated. At issue limit 4, both widths
+reproduce the main $N=24$ experiment's offload times.
 
-\begin{figure}[htbp]\centering
-\includegraphics[width=\linewidth]{../results/cache_bandwidth/n24_20260930/bandwidth_sensitivity.pdf}
-\caption{Previously completed issue-limit study, carried forward without rerunning the core simulations. Fixed CACTI area is diagnostic.}\label{fig:bandwidth}
-\end{figure}
+\begin{figure*}[!t]\centering
+\includegraphics[width=\linewidth]{figures/bandwidth_sensitivity.pdf}
+\caption{Issue-limit study at $N=24$, widths 1 and 4, and limits 1, 2, and 4 requests per accelerator cycle. Cache access and queue latencies are means. Cache capacity, queue size, traces, and timing boundaries are fixed.}\label{fig:bandwidth}
+\end{figure*}
 
-The pinned L1 protocol increments aggregate demand misses both for absent
+The L1 protocol increments aggregate demand misses both for absent
 lines and for a store upgrade from Shared to Modified. Sequencer aliasing
 also means protocol demand actions need not equal datapath responses.
-The six $N=24$ points each report 108 L1 accelerator demand misses, but
+The six $N=24$ points report \DemandMisses{} L1 accelerator demand misses, but
 that number does not partition compulsory, capacity, conflict, or coherence
-causes. Cache-line demand sequences, invalidation/ownership events, and a
-same-capacity fully-associative shadow replay were not retained for this
-cohort; we selected the aggregate-analysis alternative rather than report
-unsupported classifications. CPU conflicting-load counters concern CPU
-ordering, not accelerator cache conflicts. Global Ruby latency histograms
-include CPU traffic. Queue-time histograms omit successful retry issuance
-in this implementation and must be interpreted as that subset.
+causes. The available aggregate statistics cannot distinguish these
+categories. Global Ruby latency histograms also include CPU traffic, and
+the queue-time statistic excludes successfully retried requests. These
+measurement limits prevent attributing the width benefit to a single
+cache-miss mechanism.
 
-\section{Repeated calls and replay limits}
-A strict validator now requires an independently declared expected call
-count, consecutive ordered indices, every correctness record, matching
-completion/return intervals, consistent total mismatches, valid trace-hash
-metadata, and a normal simulator exit. Fourteen tests cover passing matched
-mutation evidence, missing/duplicate/out-of-order calls, missing intervals,
-invalid/missing hashes, nonzero mismatches, truncation, and the retained
-independent-mutation failure. The latter reports 20/24/19 mismatches and is
-excluded from performance comparisons.
-
-The new repeated-call cohort uses $N=24$, three calls, widths 1/2/4, and
-matched-mutation and unchanged-input cases. Each case/width shares one trace
-between a full per-call correctness harness and a timed harness with no
-per-call checker. Timed guest instruction sections are identical across
-widths within an input case. Every correctness call is checked, and the
-timed runs receive a supplemental final checksum. Measurement resets and
-host-return dumps have the same boundaries. Full checking between calls
-reads $A/B/C$ and executes CPU GEMM, changing the next call's cache/coherence
-state even though its runtime lies outside the offload interval.
+\section{Repeated Calls and Replay Limits}
+The repeated-call experiment uses $N=24$, three invocations, and widths
+1, 2, and 4. Inputs either remain unchanged or follow the same mutations
+used to generate the trace. Each case uses the same trace in a harness
+that checks every call and a timed harness that checks only the final
+output. Timing boundaries and host code are matched across widths.
+Full checking between calls reads $A/B/C$ and executes CPU GEMM, changing
+the next call's cache/coherence state even though its runtime lies outside
+the offload interval.
 
 \input{warm_table.tex}
-Direct per-call response counts, mean access/queue latency, histogram sample
-counts, datapath cycles, offload segments, graph sizes, functional-unit area,
-and multiplier/register peaks are retained in the cohort CSV. First/later
-call changes are not attributed solely to warmth: checker work, input
-mutation, node ordering, and scheduler state remain relevant. The unchanged
-case helps separate mutation from repeated-call behavior without providing
-an exhaustive causal isolation. Passing matched mutations require the same
-values and invocations as trace generation; the independent failure limits
-claims about arbitrary runtime input changes.
+Table~\ref{tab:warm} contrasts per-call correctness and timed histories.
+Later invocations are much shorter in the timed harness, while checking
+between calls produces a different latency pattern. Checker work, input
+mutation, node ordering, and scheduler state all affect this comparison;
+the improvement cannot be attributed solely to a warm cache. The unchanged
+input case helps separate mutation from repeated-call behavior.
 
-\section{Reproducibility and limits}
-The artifact inventory covers every main width at both sizes. All three
-recovered $N=32$ traces match their historical compressed hashes; logical
-hashes were recomputed. Published $N=24$ traces and historical per-stage
-source/guest/CACTI identities remain missing. The historical source record's
-simulator hash has 62 hex digits and is malformed; the present local binary
-has a separately retained valid fingerprint. Candidate local sources and
-binaries cannot recreate missing historical identities. These comparisons
-are retained as historical with explicit limits rather than rerun to obtain
-more favorable outcomes.
+All per-call checks pass when mutations match trace generation, and timed
+runs pass a final checksum. This does not independently verify every
+intermediate timed output. Mutating inputs independently of the trace
+produced incorrect outputs and is excluded from performance comparisons.
+The model therefore supports the tested trace-matched inputs, with limited
+claims about arbitrary runtime changes.
 
-New diagnostic cohorts retain traces, sources, guest identities, simulator
-fingerprints, configurations, raw statistics, commands, model outputs,
-patches, and manifests. The bandwidth cohort's strict validator and original
-figures remain available. Results establish behavior for small deterministic
-integer GEMM in a pinned trace model; they do not demonstrate general
-inference workloads, arbitrary inputs, mid-call mutation correctness,
-post-layout area, or physical cache-port energy costs. Optional extensions
-are outside this completed bounded study.
+\section{Reproducibility and Limitations}
+The project repository~\cite{artifacts} provides kernels, configurations,
+analysis scripts, raw statistics, generated traces, and compiled program
+identities for the complete experiment suite. The graph observer is checked
+against the reference simulator using identical traces and programs. Every
+figure and table is generated from the validated experiment records.
+
+The study covers small deterministic integer GEMM workloads in a
+trace-driven model. It does not establish behavior for general inference
+workloads or arbitrary runtime inputs. Area estimates remain pre-RTL,
+and the issue-limit experiment does not quantify physical cache-port costs.
 
 \section{Conclusion}
 Output-column width improves the measured offload interval in the studied
-cohorts, and a tighter issue interface reduces that benefit. Source and
+workloads, and a tighter issue interface reduces that benefit. Source and
 connected-graph $A$ reuse survives optimization at $N=24$ but does not reduce
-accepted cache traffic in the diagnostic cohort. Modeled latency/area
+accepted cache traffic in the diagnostic experiment. Modeled latency/area
 choices differ by workload size, and whole-program benefits are smaller than
 local improvements. Aggregate cache statistics and repeated-call data
 support these observations while limiting miss-cause and runtime-input
-claims. The resulting contribution is an auditable bounded comparison with
-explicit negative findings and provenance limits.
+claims. Tile width should therefore be evaluated against workload size,
+the memory interface, and whole-program performance together.
 
-\section*{Artifact and source references}
-\begin{enumerate}
-\item Harvard ACC, gem5-Aladdin and Aladdin: \url{https://github.com/harvard-acc/gem5-aladdin} and \url{https://github.com/harvard-acc/ALADDIN}; revisions specified above.
-\item Main comparisons, validation and cache analysis: \path{results/analysis/}.
-\item Diagnostic artifacts: \path{results/diagnostics/graph_n24/} and \texttt{warm\_n24/}; each includes analysis, CSV, validation, raw evidence and provenance.
-\item Bandwidth artifacts: \path{results/cache_bandwidth/n24_20260930/}; historical inventory: \path{results/provenance/historical_20260930/}.
-\item Reproduction and definitions: \path{docs/MECHANISM_DIAGNOSTICS.md}.\end{enumerate}
+\section*{Artifact Availability}
+Source, analysis scripts, raw experiment records, and reproduction
+instructions are available in the project repository~\cite{artifacts}.
+
+\IEEEtriggeratref{3}
+\begin{thebibliography}{5}
+\interlinepenalty=10000
+\bibitem{aladdin}
+Y. S. Shao, B. Reagen, G.-Y. Wei, and D. Brooks,
+``Aladdin: A pre-RTL, power-performance accelerator simulator enabling
+large design space exploration of customized architectures,''
+in \emph{Proc. 41st ACM/IEEE Int. Symp. Computer Architecture (ISCA)}, 2014,
+pp. 97--108.
+\bibitem{gem5aladdin}
+Y. S. Shao, S. L. Xi, V. Srinivasan, G.-Y. Wei, and D. Brooks,
+``Co-designing accelerators and SoC interfaces using gem5-Aladdin,''
+in \emph{Proc. 49th Annual IEEE/ACM Int. Symp. Microarchitecture (MICRO)},
+2016, pp. 1--12.
+\bibitem{gem5code}
+Harvard Architecture, Circuits and Compilers, ``gem5-Aladdin SoC
+simulator,'' source repository. Accessed: Sep. 30, 2026. [Online].
+Available: \url{https://github.com/harvard-acc/gem5-aladdin}
+\bibitem{aladdincode}
+Harvard Architecture, Circuits and Compilers, ``Aladdin: A pre-RTL,
+power-performance model for fixed-function accelerators,'' source
+repository. Accessed: Sep. 30, 2026. [Online]. Available:
+\url{https://github.com/harvard-acc/ALADDIN}
+\bibitem{artifacts}
+Y. Mahmud, R. M. Ihtemam, and M. Hussain, ``Coherent GEMM accelerator:
+Kernels, experiment records, and validation artifacts,'' project
+repository, 2026. [Online]. Available:
+\url{https://github.com/yasirmahmud/coherent-gemm-accelerator}
+\end{thebibliography}
 \end{document}

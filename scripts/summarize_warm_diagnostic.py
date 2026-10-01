@@ -123,7 +123,7 @@ def main():
         'The full checker reads A/B/C and performs CPU GEMM between calls. It changes cache/coherence state even though its runtime lies outside the measured invocation intervals.',
         'The timed harness supplies the controlled across-width comparison; the correctness harness supplies every-call validation. They are distinct cache histories, so timed checksums alone do not prove every intermediate output.',
         'First/later-call differences are associated with cache requests, queue subsets and resource peaks directly. They do not isolate warmth from scheduler/node ordering, input mutation or CPU work.',
-        'The historical independent-mutation fixture remains rejected with 20/24/19 mismatches and is excluded from timing comparisons.',
+        'Independent-mutation correctness checks are separate from these paired trace-matched runs and must not be included in passing timing comparisons.',
         'Resource peaks are per-call pre-RTL model estimates, not a physical hardware reconfiguration or a steady-state area claim.', '']
     (COHORT/'ANALYSIS.md').write_text('\n'.join(lines))
     if args.finalize:

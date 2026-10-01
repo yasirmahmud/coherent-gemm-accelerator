@@ -5,12 +5,12 @@ target=${GEMM_DIAG_ROOT:-/project/results/diagnostics/warm_n24}
 scratch=${GEMM_DIAG_SCRATCH:-/project/.artifacts/warm_n24/integration-test}
 mkdir -p "$scratch/common" "$scratch/with-cpu" "$target/provenance"
 cp -a /worksrc/src/aladdin/integration-test/common/. "$scratch/common/"
-cp -a "$scratch/common" "$target/provenance/"
+if [[ ! -d "$target/provenance/common" ]]; then cp -a "$scratch/common" "$target/provenance/"; fi
 sha256sum /worksrc/build/X86/gem5.opt > "$target/provenance/simulator.sha256"
-for case_name in matched unchanged; do
+for case_name in ${GEMM_DIAG_CASES:-matched unchanged}; do
   mutation_flags=''
   [[ "$case_name" == matched ]] || mutation_flags='-DUNCHANGED_INPUT=1'
-  for variant in base tiled2 tiled4; do
+  for variant in ${GEMM_DIAG_VARIANTS:-base tiled2 tiled4}; do
     case "$variant" in
       base) bench=gemm_acp_pilot; cfg=gem5_cache.cfg ;;
       tiled2) bench=gemm_tiled2; cfg=gem5.cfg ;;
@@ -54,4 +54,4 @@ for case_name in matched unchanged; do
     done
   done
 done
-date -u +%FT%TZ > "$target/provenance/completed-at.txt"
+if [[ ${GEMM_DIAG_PARTIAL:-0} != 1 ]]; then date -u +%FT%TZ > "$target/provenance/completed-at.txt"; fi

@@ -1,0 +1,39 @@
+2026-10-01T02:13:37Z Build one shared N=24 trace: base
+2026-10-01T02:13:42Z Run width=1 bandwidth=1 stage=full
+2026-10-01T02:14:23Z Passed width=1 bandwidth=1 stage=full
+2026-10-01T02:14:24Z Run width=1 bandwidth=1 stage=roi
+2026-10-01T02:15:03Z Passed width=1 bandwidth=1 stage=roi
+2026-10-01T02:15:04Z Run width=1 bandwidth=1 stage=invocation
+2026-10-01T02:15:44Z Passed width=1 bandwidth=1 stage=invocation
+2026-10-01T02:15:45Z Run width=1 bandwidth=2 stage=full
+2026-10-01T02:16:27Z Passed width=1 bandwidth=2 stage=full
+2026-10-01T02:16:27Z Run width=1 bandwidth=2 stage=roi
+2026-10-01T02:17:09Z Passed width=1 bandwidth=2 stage=roi
+2026-10-01T02:17:09Z Run width=1 bandwidth=2 stage=invocation
+2026-10-01T02:17:48Z Passed width=1 bandwidth=2 stage=invocation
+2026-10-01T02:17:49Z Run width=1 bandwidth=4 stage=full
+2026-10-01T02:18:30Z Passed width=1 bandwidth=4 stage=full
+2026-10-01T02:18:31Z Run width=1 bandwidth=4 stage=roi
+2026-10-01T02:19:15Z Passed width=1 bandwidth=4 stage=roi
+2026-10-01T02:19:16Z Run width=1 bandwidth=4 stage=invocation
+2026-10-01T02:19:54Z Passed width=1 bandwidth=4 stage=invocation
+2026-10-01T02:19:54Z Build one shared N=24 trace: tiled4
+2026-10-01T02:19:58Z Run width=4 bandwidth=1 stage=full
+2026-10-01T02:20:19Z Passed width=4 bandwidth=1 stage=full
+2026-10-01T02:20:20Z Run width=4 bandwidth=1 stage=roi
+2026-10-01T02:20:36Z Passed width=4 bandwidth=1 stage=roi
+2026-10-01T02:20:37Z Run width=4 bandwidth=1 stage=invocation
+2026-10-01T02:20:54Z Passed width=4 bandwidth=1 stage=invocation
+2026-10-01T02:20:55Z Run width=4 bandwidth=2 stage=full
+2026-10-01T02:21:11Z Passed width=4 bandwidth=2 stage=full
+2026-10-01T02:21:12Z Run width=4 bandwidth=2 stage=roi
+2026-10-01T02:21:27Z Passed width=4 bandwidth=2 stage=roi
+2026-10-01T02:21:27Z Run width=4 bandwidth=2 stage=invocation
+2026-10-01T02:21:42Z Passed width=4 bandwidth=2 stage=invocation
+2026-10-01T02:21:43Z Run width=4 bandwidth=4 stage=full
+2026-10-01T02:21:59Z Passed width=4 bandwidth=4 stage=full
+2026-10-01T02:22:00Z Run width=4 bandwidth=4 stage=roi
+2026-10-01T02:22:17Z Passed width=4 bandwidth=4 stage=roi
+2026-10-01T02:22:17Z Run width=4 bandwidth=4 stage=invocation
+2026-10-01T02:22:32Z Passed width=4 bandwidth=4 stage=invocation
+All six points completed with full output checks.

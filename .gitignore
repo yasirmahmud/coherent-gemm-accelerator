@@ -23,3 +23,5 @@ proposal/*
 !results/diagnostics/graph_n24/**/fs/**
 !results/diagnostics/warm_n24/**/fs/
 !results/diagnostics/warm_n24/**/fs/**
+!results/paper_runs/**/config.json
+!results/diagnostics/paper_*/**/config.json

@@ -5,11 +5,11 @@ target=${GEMM_DIAG_ROOT:-/project/results/diagnostics/graph_n24}
 scratch=${GEMM_DIAG_SCRATCH:-/project/.artifacts/graph_n24/integration-test}
 mkdir -p "$scratch/common" "$scratch/with-cpu"
 cp -a /worksrc/src/aladdin/integration-test/common/. "$scratch/common/"
-cp -a "$scratch/common" "$target/provenance/common"
+if [[ ! -d "$target/provenance/common" ]]; then cp -a "$scratch/common" "$target/provenance/common"; fi
 sha256sum /worksrc/build/X86/gem5.opt /diagnostic/build/X86/gem5.opt > "$target/provenance/simulators.sha256"
 git -C /worksrc rev-parse HEAD > "$target/provenance/gem5-commit.txt"
 git -C /worksrc/src/aladdin rev-parse HEAD > "$target/provenance/aladdin-commit.txt"
-for variant in base tiled2 tiled4; do
+for variant in ${GEMM_DIAG_VARIANTS:-base tiled2 tiled4}; do
   case "$variant" in
     base) bench=gemm_acp_pilot; cfg=gem5_cache.cfg ;;
     tiled2) bench=gemm_tiled2; cfg=gem5.cfg ;;
@@ -21,13 +21,8 @@ for variant in base tiled2 tiled4; do
   cp -a "/project/benchmarks/$bench/." "$work/"
   cp -a "/project/benchmarks/$bench/." "$inputs/"
   cd "$work"
-  if [[ "$variant" == tiled2 ]]; then
-    make BMARK_SPECIFIC_CFLAGS='-DN=24' -B run-trace > "$inputs/trace-build.log" 2>&1
-    grep -qx 'GEMM passed: 0 mismatches' "$inputs/trace-build.log"
-  else
-    cp "/project/results/cache_bandwidth/n24_20260930/inputs/$variant/dynamic_trace.gz" .
-    cp "/project/results/cache_bandwidth/n24_20260930/inputs/$variant/trace-build.log" "$inputs/"
-  fi
+  make BMARK_SPECIFIC_CFLAGS='-DN=24' -B run-trace > "$inputs/trace-build.log" 2>&1
+  grep -qx 'GEMM passed: 0 mismatches' "$inputs/trace-build.log"
   cp dynamic_trace.gz "$inputs/"
   sha256sum dynamic_trace.gz > "$inputs/trace.sha256"
   gzip -cd dynamic_trace.gz | sha256sum > "$inputs/logical-trace.sha256"
@@ -57,4 +52,4 @@ for variant in base tiled2 tiled4; do
     done
   done
 done
-date -u +%FT%TZ > "$target/provenance/completed-at.txt"
+if [[ ${GEMM_DIAG_PARTIAL:-0} != 1 ]]; then date -u +%FT%TZ > "$target/provenance/completed-at.txt"; fi

@@ -1,0 +1,23 @@
+gem5 Simulator System.  http://gem5.org
+gem5 is copyrighted software; use the --copyright option for details.
+
+gem5 compiled Sep 30 2026 05:28:43
+gem5 started Oct  1 2026 02:22:06
+gem5 executing on d209b82e1f1b, pid 100
+command line: /worksrc/build/X86/gem5.opt --outdir=/project/results/paper_runs/paper_local_20261001/main/fair_results/tiled4_n24/m5out-cpu /worksrc/configs/example/se.py --ruby --num-cpus=1 --num-l2caches=1 --num-dirs=1 --cpu-type=DerivO3CPU --mem-size=1GB --mem-type=DDR3_1600_8x8 --sys-clock=1GHz --ruby-clock=1GHz --cacheline_size=64 -c /project/.artifacts/paper_local_20261001_main_24_tiled4/integration-test/with-cpu/tiled4/gemm_tiled4-gem5
+
+info: Standard input is not a terminal, disabling listeners.
+Global frequency set at 1000000000000 ticks per second
+warn: DRAM device capacity (8192 Mbytes) does not match the address range assigned (1024 Mbytes)
+warn: Sockets disabled, not accepting gdb connections
+**** REAL SIMULATION ****
+info: Entering event queue @ 0.  Starting simulation...
+warn: Replacement policy updates recently became the responsibility of SLICC state machines. Make sure to setMRU() near callbacks in .sm files!
+info: Increasing stack size by one page.
+warn: ignoring syscall access(...)
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+warn: x86 cpuid family 0x0000: unimplemented function 2
+GEMM passed: 0 mismatches
+Exiting @ tick 94243500 because exiting with last active thread context

@@ -1,0 +1,23 @@
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs-cache/gemm_acp_pilot
+Top level function: gemm_kernel
+Cycle : 1714 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 151.986 mW
+Idle FU Cycles: 815 cycles
+Avg FU Power: 129.604 mW
+Avg FU Dynamic Power: 126.188 mW
+Avg FU leakage Power: 3.41541 mW
+Avg MEM Power: 22.3822 mW
+Avg MEM Dynamic Power: 18.4676 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.08073e+06 uM^2
+FU Area: 277751 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 28
+Num of Registers (32-bit): 522
+===============================
+        Aladdin Results        
+===============================

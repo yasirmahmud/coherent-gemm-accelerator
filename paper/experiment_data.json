@@ -1,0 +1,19 @@
+{
+  "status": "validated",
+  "suite": "results/paper_runs/paper_local_20261001",
+  "files": {
+    "width": "results/paper_runs/paper_local_20261001/analysis/width_summary.csv",
+    "graph": "results/diagnostics/paper_local_20261001_graph/summary.csv",
+    "warm": "results/diagnostics/paper_local_20261001_warm/summary.csv",
+    "bandwidth": "results/cache_bandwidth/paper_local_20261001_bandwidth/summary.csv",
+    "cache": "results/paper_runs/paper_local_20261001/analysis/cache/aggregate.csv",
+    "negative": "results/paper_runs/paper_local_20261001/analysis/independent_mutation.json",
+    "validation": "results/paper_runs/paper_local_20261001/analysis/suite_validation.json"
+  },
+  "artifact_groups": [
+    "results/paper_runs/paper_local_20261001",
+    "results/diagnostics/paper_local_20261001_graph",
+    "results/diagnostics/paper_local_20261001_warm",
+    "results/cache_bandwidth/paper_local_20261001_bandwidth"
+  ]
+}

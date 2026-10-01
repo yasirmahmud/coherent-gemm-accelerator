@@ -1,0 +1,57 @@
+{
+  "status": "validated",
+  "simulator_processes": 107,
+  "main_points": 12,
+  "sizes": [
+    8,
+    16,
+    24,
+    32
+  ],
+  "widths": [
+    1,
+    2,
+    4
+  ],
+  "bandwidth_points": 6,
+  "graph_pairs": 6,
+  "warm_pairs": 6,
+  "independent_mutation_runs": 3,
+  "fresh_traces_and_guests": true,
+  "independent_mutation": [
+    {
+      "width": 1,
+      "outcome": "rejected for incorrect output",
+      "expected_calls": 3,
+      "mismatch_counts": [
+        20,
+        24,
+        19
+      ],
+      "raw": "results/paper_runs/paper_local_20261001/negative/base"
+    },
+    {
+      "width": 2,
+      "outcome": "rejected for incorrect output",
+      "expected_calls": 3,
+      "mismatch_counts": [
+        20,
+        24,
+        19
+      ],
+      "raw": "results/paper_runs/paper_local_20261001/negative/tiled2"
+    },
+    {
+      "width": 4,
+      "outcome": "rejected for incorrect output",
+      "expected_calls": 3,
+      "mismatch_counts": [
+        20,
+        24,
+        19
+      ],
+      "raw": "results/paper_runs/paper_local_20261001/negative/tiled4"
+    }
+  ],
+  "suite": "results/paper_runs/paper_local_20261001"
+}

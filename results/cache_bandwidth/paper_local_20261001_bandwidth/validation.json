@@ -1,0 +1,10 @@
+{
+  "points": 6,
+  "full_accelerator_checks": 6,
+  "cpu_checks": 2,
+  "effective_config_comparison": "all entries; names/paths normalized; cacheBandwidth varied",
+  "shared_traces_verified": true,
+  "stage_cycles_agree": true,
+  "checksums_agree": true,
+  "host_instruction_counts_agree": true
+}

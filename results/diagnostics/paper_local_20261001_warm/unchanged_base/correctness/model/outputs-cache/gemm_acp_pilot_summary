@@ -1,0 +1,69 @@
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs-cache/gemm_acp_pilot
+Top level function: gemm_kernel
+Cycle : 1452 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 180.855 mW
+Idle FU Cycles: 770 cycles
+Avg FU Power: 156.307 mW
+Avg FU Dynamic Power: 148.957 mW
+Avg FU leakage Power: 7.35007 mW
+Avg MEM Power: 24.548 mW
+Avg MEM Dynamic Power: 20.6334 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.40134e+06 uM^2
+FU Area: 598362 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 72
+Num of Registers (32-bit): 737
+===============================
+        Aladdin Results        
+===============================
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs-cache/gemm_acp_pilot
+Top level function: gemm_kernel
+Cycle : 630 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 405.195 mW
+Idle FU Cycles: 7 cycles
+Avg FU Power: 352.434 mW
+Avg FU Dynamic Power: 343.335 mW
+Avg FU leakage Power: 9.09891 mW
+Avg MEM Power: 52.7613 mW
+Avg MEM Dynamic Power: 48.8467 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.54279e+06 uM^2
+FU Area: 739811 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 72
+Num of Registers (32-bit): 1476
+===============================
+        Aladdin Results        
+===============================
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs-cache/gemm_acp_pilot
+Top level function: gemm_kernel
+Cycle : 627 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 406.427 mW
+Idle FU Cycles: 6 cycles
+Avg FU Power: 354.119 mW
+Avg FU Dynamic Power: 344.977 mW
+Avg FU leakage Power: 9.14151 mW
+Avg MEM Power: 52.308 mW
+Avg MEM Dynamic Power: 48.3934 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.54623e+06 uM^2
+FU Area: 743257 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 72
+Num of Registers (32-bit): 1494
+===============================
+        Aladdin Results        
+===============================

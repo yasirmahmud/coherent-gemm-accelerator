@@ -1,88 +1,101 @@
-# Audit of the current proposal: 2026-09-30
+# Proposal completion review
 
-**Execution update:** the audit below records the pre-implementation state.
-The [immediate checklist](IMMEDIATE_NEXT_STEPS.md) and
-[diagnostic evidence](MECHANISM_DIAGNOSTICS.md) now supersede its remaining-work
-statuses. Graph attribution, validator hardening, repeated-call diagnostics,
-width reporting and the final paper are complete. Miss-cause classification
-uses the explicitly permitted aggregate alternative; historical provenance
-gaps are inventoried rather than filled with inferred identities. The revised
-proposal PDF remains two pages and contains planned work without measurements.
+Reviewed on 2026-09-30 against the current proposal source/PDF, final IEEE
+paper, implementation, validators, and fresh suite selected by
+`paper/experiment_data.json`.
 
-This audit checks `proposal/proposal.tex` against current code and retained
-raw evidence. It does not change the proposal or disclose measurements in
-the proposal PDF. Completion and a favorable performance outcome are
-separate questions: a completed diagnostic can produce a negative result.
+**Verdict: the main experiments and deliverables are complete, but literal
+completion of every promise is not yet demonstrated.** Two items remain
+partial: complete main-grid cache-counter reporting in the paper, and a
+retained, controlled paired-rebuild assessment of modeled area using the
+current local setup.
 
-The core width and bandwidth experiments are complete. Every promise in the
-proposal is not yet complete, and the measured results are not uniformly
-positive. The outstanding items are mostly analysis, graphics, and writing.
+This replaces the earlier audit's obsolete statuses. The proposal and paper
+are unchanged by this review. Negative results count as completed experiments
+when their intended checks and interpretation are present.
 
-## Claim-by-claim assessment
+## Commitment-by-commitment assessment
 
-| Proposal location | Claim or commitment | Current completion evidence | Outcome / limitation |
+Locations refer to current `proposal/proposal.tex` line numbers.
+
+| Proposal lines | Commitment | Status | Evidence and limits |
 | --- | --- | --- | --- |
-| Lines 34–38 | Separate datapath, host-offload, and whole-program effects | Complete: full/ROI/invocation logs and summaries retain all three metrics | Tiling reduces datapath/offload time; whole-program benefit is much smaller and zero at N=8 |
-| Line 38 | Baseline has `2N^3` source-level input loads and a serial accumulation per output | Established by the baseline C loop; no simulation is needed for this source-level count | This is not an issued-cache-request count or proof of the unique performance bottleneck |
-| Lines 38, 87 | Test interaction between tile width and request issue capacity | Complete: six N=24 bandwidth points; final raw-evidence validator passes | Positive support for sensitivity: width-4 offload benefit increases from 4.669% to 7.268% to 12.033% at limits 1/2/4 |
-| Lines 45–60, 93 | Specified CPU/cache/memory/clocks and bounded interface | Effective bandwidth configurations confirm CPU widths 8, ROB 192, LQ/SQ 32, CPU 2 GHz, system/Ruby/accelerator 1 GHz, L1D/L1I 64/32 kB, L2 2 MB, accelerator cache 32 kB/four-way/64-byte lines/32-entry queue; pinned runner requests 1 GB DDR3-1600 and verifies the common patch | A methodological control, not a performance result |
-| Line 64 | Width-2/4 kernels share A across independent accumulators; source A loads become `N^3/w`; MAC count stays `N^3` | Established by all three kernel implementations; successful full checks confirm equivalent outputs at tested sizes | Positive implementation/correctness result; source counts do not establish physical traffic savings |
-| Line 64 | Inspect optimized graph operations and establish which changes reach the interface | Partial: pre/post graph totals and optimization logs are retained, along with returned cache-operation counters | Operand-specific optimized load/MAC counts and the precise A-reuse-to-request mechanism are not established by the available analysis |
-| Lines 84, 87, 128 | Assess concurrent-resource and area tradeoffs | Complete measurements: FU/MEM/total area in raw logs for main width points and bandwidth points | Mixed: width 4 has about 0.33% lower total modeled area at N=24 but about 27.69% higher at N=32; wider tiles are not uniformly cheaper |
-| Lines 91, 134 | Pinned open-source tools, patch, source identities and reproduction commands | Complete: setup scripts, recorded revisions, image digest, patch, and cohort provenance | A reproducibility control; silicon performance is not demonstrated |
-| Line 95 / Figure 3 | Main matrix: N=24/32 × widths 1/2/4 at issue limit 4 | Complete raw evidence: N=24 all widths in the published cohort; N=32 all widths in the recovered cohort | Positive internal/offload timing trends at both sizes; cohorts must be compared separately |
-| Line 95 / Figure 3 | Bandwidth matrix: N=24 × widths 1/4 × issue limits 1/2/4 | Complete: 18 accelerator stages and two independent full-check CPU runs | Width 4 wins on offload time at all three limits; benefit shrinks under the tighter limit |
-| Lines 60, 95 | Hold other hardware settings fixed; compare against the matching cohort baseline | Bandwidth validator compares all effective entries after names/paths are normalized. This audit also checked the named CPU/clock/cache/queue controls for all ten main/small-size points | Supported controls; the historical width/size configuration audit did not compare every effective entry |
-| Line 95 | One trace per kernel shared across bandwidth settings | Complete: retained compressed traces, compressed/logical hashes, shared runner paths, and equal graph sizes across each kernel's bandwidth/stage runs | A valid control; traces are distinct between kernels |
-| Line 121 | N=32 matrices occupy 12 kB, below 32 kB cache capacity | Established arithmetically: three arrays × 32² elements × four bytes | Does not imply absence of compulsory/conflict/coherence effects |
-| Line 121 | Measure compulsory, conflict, and coherence effects | Partial: raw Ruby/cache statistics exist | No completed classification or controlled isolation of these three causes was found; aggregate misses are not that classification |
-| Line 121 | N=8/16 comparisons and OoO CPU reference to test crossover | Complete: both widths have full/ROI/invocation and CPU evidence at both sizes; CSV also covers N=24/32 | Mixed: same-kernel CPU-relative speedup is 0.869× at N=8, 0.957× at N=16, about 1.173× at N=24 and 1.524× at N=32; crossover is bracketed, not precisely located |
-| Lines 118, 121 | Full output checks at every single-invocation point; lightweight checks outside offload timing | Complete: this audit verified all ten size/width points and the six bandwidth points, including full CPU/accelerator checks and timing-stage checksum agreement | Positive correctness result within the fixed-trace input scope |
-| Line 123 | Retain logs, effective configs, identities, hashes and automated validation | Complete for the new bandwidth cohort; historical cohorts retain varying subsets | Broader historical provenance retention is partial: some exact earlier rebuild artifacts were discarded, and compressed traces are not available for every old point |
-| Line 123 | Bandwidth validator rejects incomplete/failed/altered/uncontrolled evidence | Implemented; eight rejection/acceptance tests passed in the implementation session; final validator re-run succeeds in this audit | Positive validation result. This does not fix the separate historical repeated-call summarizer's permissive validation |
-| Line 123 | Matched-mutation repeated calls; check every output and distinguish first/later calls | Complete for saved N=24 base REPS=3: call indices 0/1/2 each have zero mismatches and paired timing blocks | Positive narrow correctness result. Cycles 1452/628/628 and changing offload ticks show different first/later operating points; warm timing remains harness-sensitive |
-| Line 123 | Independent runtime mutation diagnostic to establish replay limits | Complete: three calls and timing records retained; summarizer exits with failure | Negative correctness result: 20/24/19 mismatches. This supports a fixed-trace limitation, not arbitrary runtime-input correctness |
-| Line 123 | Paired rebuilds assess repeatability of modeled area | Supported within tested single-invocation cases: published/recovered N=24 FU/MEM/total area agree for both kernels; controlled full/ROI order test also agrees | Positive scoped repeatability; old baseline ROI MEM area remains discrepant and repeated-call resource estimates differ. Not a universal stability claim |
-| Line 126 | Completion and return segments, 1 ns datapath conversion, residual and stability test | Complete for bandwidth cohort; all six measured residuals are 728 ns and return segments 471 ns | Positive support for constant measured non-datapath intervals in this cohort only; component causes are not separately isolated |
-| Lines 126, 128 | Explain whether local gains survive in whole-program time | Measurements and bounded interpretation are available | Mixed: original width-4 whole-program reductions are 0%/0.446%/0.474%/1.178% at N=8/16/24/32; the new bandwidth cohort stays below 1% |
-| Line 128 | Cache counts, mean latency, queue time, histogram samples, graph totals, area breakdown | Complete for bandwidth cohort: all are in raw logs/stats and summary CSV | Mixed counters: mean queue time falls with increasing issue limit, while mean access latency rises; request counts vary at tighter limits. No uniform traffic reduction is established |
-| Lines 87, 128 | Latency–area comparison and interpretation of the preferred width | Partial: tables support comparisons, but the complete plotted analysis and final explanatory prose are unfinished | N=32 width 4 is faster and slightly smaller than width 2; width 1 has lower modeled area. No universal winner follows |
-| Line 128 | Plots for bandwidth, CPU-by-size, and latency–area tradeoffs | Partial: bandwidth PNG/PDF/SVG and size-based offload PNGs exist | Missing completed width-1/2/4 plots at both sizes, CPU-speedup-versus-size plot, and latency–area plot |
-| Lines 128, 131 | Distinguish associations from verified causes; explain all constraints | Partially written in notes; proposal correctly avoids a unique-bottleneck assertion | Issue-limit sensitivity is demonstrated. Precise causes of changed latency, merging counts, and warm-call behavior are not fully isolated |
-| Line 131 | Kernels, runners, validation records, comparison tables and vector plots | Mostly complete: core code/data and bandwidth vector figures exist | Full all-width reporting/graphics remain incomplete |
-| Line 131 | Final paper explaining results, cost and model limits | Not complete: `docs/REPORT_SKELETON.md` is explicitly a scaffold | Pending deliverable, with no final-paper result to assess |
+| 34–38, 87 | Test when reuse helps, issue-limit sensitivity, and datapath/offload/whole-program effects | Complete | Fresh main and bandwidth CSVs retain all timing measures. Width-4 offload benefits are 4.587%, 7.133%, and 11.802% at issue limits 1/2/4. Paper distinguishes local and whole-program gains. |
+| 38, 64 | Baseline and widths 2/4 share A without changing GEMM arithmetic | Complete | All three kernels implement the loops; full output checks pass at every main point. Source and connected optimized A loads at N=24 are 13,824/6,912/3,456; products and accumulation adds stay 13,824. |
+| 64, 128 | Compare optimized graph totals and measured cache requests | Complete within diagnostic scope | Fresh passive observer covers N=24, all widths. Reference/observer stats, configurations, cycles, and FU/MEM area agree. All widths accept/return 36 A loads, 36 B loads, and 576 C stores. Full graph/request counters are retained. Operand-specific attribution at N=32 was not explicitly promised. |
+| 91, 93, 134 | Pinned tools, specified architecture, common queue/retry patch, retained identities/commands | Complete | Setup scripts and suite provenance retain revisions, image, diffs, patches, simulator fingerprints, source snapshots, guest identities, commands, and effective configurations. Detailed identities remain in artifacts rather than paper prose. |
+| 95, Figure 3 | N=24/32 × widths 1/2/4 at issue limit 4 | Complete | All six promised points are in the fresh 12-point main sweep, with all five simulation stages per point. |
+| 95, Figure 3 | N=24 × widths 1/4 × issue limits 1/2/4 | Complete | All six points have correctness, program timing, and segmented invocation timing; two CPU correctness controls are retained. |
+| 60, 95 | Fixed controls, matched baselines, shared trace per kernel across issue limits | Complete | Validators compare effective configurations and trace identities. Main and bandwidth offload times agree at N=24, issue limit 4. |
+| 121 | N=8/16 same-kernel OoO CPU comparisons for widths 1/4 | Complete; coverage expanded | Width 2 is also included. Figure 4 covers all 12 points. Width-4 CPU speedups are 0.875×/0.953×/1.171×/1.509× for N=8/16/24/32, bracketing crossover between N=16 and N=24. |
+| 118, 121 | Full elementwise checks at every point; lightweight checks outside timed intervals | Complete | Full CPU/accelerator checks and matched timing-stage checksums are validated. Source places checksum after invocation statistics dump. Repeated timed runs receive a final checksum, without independently checked intermediate outputs. |
+| 118, 121, 128 | Cache analysis at every main point; report loads/stores, access/queue means, samples, and N=32 aggregate evidence | Partial in paper; measurements exist | Bandwidth CSV contains the promised fields for six points. This review checked all six main N=24/32 invocation records and reconciled latency samples with returned loads plus stores. Paper presents detailed traffic at N=24 and bandwidth means but omits the complete main-grid counter table, N=32 aggregate discussion, and histogram sample counts. Checked values appear below. |
+| 121 | Explain compulsory/capacity/conflict/coherence attribution limits | Complete as scoped | Proposal explicitly leaves separate attribution as diagnostic work. Paper reports aggregates and explains why they cannot partition miss causes. A complete miss classifier is not an outstanding core promise. |
+| 123 | Retain provenance; reject missing stages, failed checks, trace/checksum mismatches, configuration changes | Complete for current suite | Suite validation records 107 simulator processes and verified fresh traces/guests. Main/graph/warm/bandwidth validators check intended evidence. Existing 22 validator tests passed. Current paper excludes historical measurements. |
+| 123 | Matched repeated calls, first/later timing, independent mutation test | Complete, including negative result | All widths have matched/unchanged three-call checker/timed pairs. Eighteen checked calls pass. Independent mutation fails with 20/24/19 mismatches at every width, exits normally, and is excluded from performance comparisons. Paper states the replay limit. |
+| 123 | Paired rebuilds assess modeled-area repeatability | Partial for current local evidence | All six main N=24/32 points have identical FU/MEM/total area across full/ROI/invocation stages. Reference/observer builds also agree at N=24. These check stage consistency and observer neutrality, rather than controlled repetition of the same clean build. Older notes describe rebuild agreement and an order test, but some original rebuild records were discarded. Selected suite has no dedicated two-clean-build comparison under identical revision/patch/toolchain/trace controls. |
+| 126 | Completion/return segments, 1 ns conversion, residual and bandwidth stability | Complete | All six bandwidth points have a 757 ns completion residual and 494 ns return segment. Paper reports the 1.251 μs offset without uniquely assigning its cause. |
+| 87, 128 | FU/memory/total area, latency–area tradeoffs, separate queue/access analysis | Complete | Width table and Figures 2/3 show latency/area, splits, and dominated points. Figure 5 distinguishes access/queue means. N=24 width 4 dominates; N=32 widths 1/4 remain alternatives. |
+| 128 | Avoid physical port-cost/energy claims; distinguish associations from verified causes | Complete | Paper states pre-RTL cost, aggregate-counter, issue-limit cost-model, and repeated-call confounding limits. No physical port-cost or energy saving is claimed. |
+| 131 | Kernels, runners, validation, comparison tables, vector plots, final explanatory paper | Complete | All exist. Five-page IEEE paper includes architecture, width, CPU-size, latency–area, and issue-limit figures. Scientific plots are vector PDFs generated from fresh selected records. |
 
-## Checks performed for this audit
+## Main-grid cache evidence checked during review
 
-- Re-ran the bandwidth verifier against all six points and 18 stages.
-- Independently checked ten retained main/small-size points for full CPU
-  and accelerator passes, labeled invocation blocks, checksum agreement,
-  cycles, area, graph totals, and timing metrics. Main N=24 all-width
-  comparisons use the published cohort; main N=32 use the recovered cohort.
-- Compared the named hardware controls across those ten points and
-  inspected CPU pipeline/cache/memory settings in the effective bandwidth
-  configuration.
-- Verified both artifact manifests: 250 files in the bandwidth cohort and
-  106 files in the recovered cohort.
-- Read the actual matched and independent repeated-call logs; the matched
-  summarizer reports three passing calls, while the independent diagnostic
-  reports 63 total mismatches and exits nonzero.
-- Compared N=24 area breakdowns across published and recovered cohorts.
-- Inspected plotting scripts/artifacts and final-report files, rather than
-  inferring completion from older checklist entries.
+Values are from reset-to-datapath-completion blocks in fresh main invocation
+runs. Durations convert 1 ps ticks to ns. Loads/stores count returned datapath
+operations. Demand misses are aggregate accelerator L1 Ruby protocol counts,
+without miss-cause partition. Queue samples exclude successfully retried
+issuance in the pinned implementation.
 
-## What to tighten if every experiment promise must already be backed
+| N | Width | Loads / stores | Access mean (ns) | Queue mean (ns) | Access / queue samples | Demand misses |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 24 | 1 | 72 / 576 | 27.519 | 30.077 | 648 / 584 | 108 |
+| 24 | 2 | 72 / 576 | 22.432 | 25.617 | 648 / 588 | 108 |
+| 24 | 4 | 72 / 576 | 19.915 | 21.779 | 648 / 587 | 108 |
+| 32 | 1 | 128 / 1,039 | 33.194 | 31.686 | 1,167 / 1,049 | 192 |
+| 32 | 2 | 128 / 1,039 | 24.925 | 25.560 | 1,167 / 1,051 | 192 |
+| 32 | 4 | 128 / 1,039 | 20.642 | 21.621 | 1,167 / 1,053 | 192 |
 
-1. Replace operand-specific graph/traffic attribution with the narrower
-   commitment to compare graph totals and measured cache counters.
-2. Replace the promise to measure compulsory/conflict/coherence causes with
-   a promise to report aggregate cache/coherence counters and their limits.
-3. Scope retained source/binary/trace provenance to the bandwidth cohort,
-   with the existing artifacts supplied for historical comparisons.
-4. Complete the promised all-width, CPU-versus-size, and latency–area plots
-   before describing those graphics as already achieved.
-5. Keep the final paper clearly identified as remaining writing work.
+Raw files follow
+`results/paper_runs/paper_local_20261001/main/invocation_results/{base,tiled2,tiled4}_n{24,32}/m5out-{cache,accel}/stats.txt`.
+Baseline uses `m5out-cache`; tiled variants use `m5out-accel`.
 
-The independent mutation failure, small-N CPU losses, and modeled-area
-increase should remain part of the research story. They do not undo the
-positive core latency result; they constrain its scope.
+## Remaining work before claiming every promise is fulfilled
+
+1. Add the main-grid cache-counter breakdown, sample-count context, and N=32
+   aggregate discussion to the paper or an explicitly linked report table.
+   Existing measurements suffice; no additional simulation is needed.
+2. Retain a controlled paired-clean-rebuild area assessment on the current
+   device, with matching source/patch/toolchain/trace controls and comparison
+   results. Stage agreement and observer neutrality alone should not be
+   presented as clean-rebuild repeatability.
+
+Larger N, width 8, inference, RTL synthesis, energy measurements, arbitrary
+runtime-input correctness, exact crossover identification, and a full miss
+classifier are not core deliverables promised by this proposal. Independent
+mutation failure and small-size CPU losses do not make their experiments
+incomplete.
+
+## Documentation consistency
+
+Paper data selection and generated numerical macros are current. Root README
+still leads with historical headline measurements and a next-steps list
+containing completed work. Other historical notes retain earlier statuses.
+These documentation issues should be refreshed before presenting the
+repository as one current completion record; they are separate from missing
+experiments.
+
+## Evidence reviewed
+
+- [Proposal source](../proposal/proposal.tex) and rendered two-page PDF.
+- [Final IEEE paper](../paper/final_paper.pdf), TeX, and generated result macros.
+- [Experiment coverage](PAPER_EXPERIMENTS.md), selected CSVs, suite/run records,
+  graph equivalence checks, warm and independent-mutation outcomes.
+- Raw cache statistics and all three stage area reports for all six main
+  N=24/32 points; histogram totals reconcile and stage areas agree.
+- Kernel timing/check boundaries, validators, and retained 22-test result.
+- Historical rebuild/order-test records, distinguishing their limitations
+  from current selected evidence.
+
+This review did not rerun experiments, change proposal/manuscript, or
+commit/push the updated audit.

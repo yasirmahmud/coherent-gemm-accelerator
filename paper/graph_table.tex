@@ -1,9 +1,14 @@
-\begin{table}[htbp]\centering\small
+\begin{table}[!t]
+\centering
+\caption{Passive diagnostic, $N=24$, issue limit 4. Returned requests equal accepted requests per array.}
+\label{tab:graph}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{rrrrr}\toprule
-$w$ & Source $A$ loads & Optimized $A/B$ loads & Accepted $A/B$ loads & Accepted $C$ stores \\ \midrule
+$w$ & \shortstack{Source $A$\\loads} & \shortstack{Optimized\\$A/B$ loads} & \shortstack{Accepted\\$A/B$ loads} & \shortstack{Accepted\\$C$ stores} \\ \midrule
 1 & 13824 & 13824/13824 & 36/36 & 576 \\
 2 & 6912 & 6912/13824 & 36/36 & 576 \\
 4 & 3456 & 3456/13824 & 36/36 & 576 \\
-\bottomrule\end{tabular}
-\caption{Passive diagnostic, $N=24$, issue limit 4. Returned requests equal accepted requests per array.}
+\bottomrule
+\end{tabular}
 \end{table}

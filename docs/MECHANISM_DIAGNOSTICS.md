@@ -28,8 +28,10 @@ mechanism/repeated-call diagnostics, not replacements for historical cohorts.
   N=32 recovered cohorts remain separate. Vector figures show latency,
   same-kernel CPU speedup and FU/memory area; no universally best width is claimed.
 - [Final paper](../paper/final_paper.pdf) and its [source](../paper/final_paper.tex).
-  The existing [bandwidth figures and timing decomposition](CACHE_BANDWIDTH.md)
-  are carried forward. Optional extensions were not added to this bounded study.
+  The paper now uses only the [fresh complete experiment suite](PAPER_EXPERIMENTS.md).
+  The historical artifacts below remain available separately.
+  The paper's selected measurements are documented in `PAPER_EXPERIMENTS.md`;
+  the earlier cohorts linked above remain archived separately.
 
 ## Observer definitions
 
@@ -89,8 +91,12 @@ python3 scripts/summarize_repeated.py results/diagnostics/repeated_n24_reps3_bas
 # This must exit 1; it remains a failed correctness experiment:
 python3 scripts/summarize_repeated.py results/diagnostics/repeated_n24_reps3_base_independent --expected-calls 3
 python3 scripts/plot_width_analysis.py  # requires Matplotlib
+# Final paper: validate its selected fresh suite and regenerate numerical claims.
+python3 scripts/validate_paper_suite.py results/paper_runs/paper_local_20261001
+python3 scripts/build_paper_numbers.py
 python3 scripts/build_paper_tables.py
-# Compile paper/final_paper.tex with a TeX distribution (e.g. Tectonic).
+python3 scripts/plot_ieee_paper.py  # requires Matplotlib
+tectonic paper/final_paper.tex --outdir paper  # IEEEtran conference format
 ```
 
 New `run_repeated.sh` outputs declare their expected count in `run.json` and

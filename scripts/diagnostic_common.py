@@ -9,8 +9,10 @@ def normalized_configuration(path, bench, output):
     parser.optionxform=str
     parser.read_string(Path(path).read_text())
     result={}
+    output_prefix=str(Path(output)).replace(str(Path(__file__).resolve().parents[1]),'/project')
     for section in parser.sections():
         for key,value in parser[section].items():
+            value=value.replace(output_prefix,'@OUTPUT@')
             value=value.replace(bench,'@KERNEL@')
             value=re.sub(r'/project/\.artifacts/[^/]+/integration-test/with-cpu/[^/\s]+','@WORK@',value)
             # config.ini redirects use only the current run's output root.

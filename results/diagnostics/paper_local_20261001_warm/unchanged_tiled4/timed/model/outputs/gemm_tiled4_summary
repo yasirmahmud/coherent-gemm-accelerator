@@ -1,0 +1,69 @@
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs/gemm_tiled4
+Top level function: gemm_kernel
+Cycle : 1133 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 221.272 mW
+Idle FU Cycles: 791 cycles
+Avg FU Power: 190.914 mW
+Avg FU Dynamic Power: 183.621 mW
+Avg FU leakage Power: 7.29327 mW
+Avg MEM Power: 30.3575 mW
+Avg MEM Dynamic Power: 26.4428 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.39675e+06 uM^2
+FU Area: 593769 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 72
+Num of Registers (32-bit): 713
+===============================
+        Aladdin Results        
+===============================
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs/gemm_tiled4
+Top level function: gemm_kernel
+Cycle : 246 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 979.556 mW
+Idle FU Cycles: 12 cycles
+Avg FU Power: 850.546 mW
+Avg FU Dynamic Power: 842.138 mW
+Avg FU leakage Power: 8.40789 mW
+Avg MEM Power: 129.01 mW
+Avg MEM Dynamic Power: 125.095 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.4869e+06 uM^2
+FU Area: 683921 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 72
+Num of Registers (32-bit): 1184
+===============================
+        Aladdin Results        
+===============================
+===============================
+        Aladdin Results        
+===============================
+Running : ./outputs/gemm_tiled4
+Top level function: gemm_kernel
+Cycle : 228 cycles
+Upsampled Cycle : 0 cycles
+Avg Power: 1052.5 mW
+Idle FU Cycles: 11 cycles
+Avg FU Power: 917.187 mW
+Avg FU Dynamic Power: 908.623 mW
+Avg FU leakage Power: 8.56408 mW
+Avg MEM Power: 135.317 mW
+Avg MEM Dynamic Power: 131.402 mW
+Avg MEM Leakage Power: 3.91461 mW
+Total Area: 1.49953e+06 uM^2
+FU Area: 696554 uM^2
+MEM Area: 802977 uM^2
+Num of Multipliers (32-bit): 72
+Num of Registers (32-bit): 1250
+===============================
+        Aladdin Results        
+===============================

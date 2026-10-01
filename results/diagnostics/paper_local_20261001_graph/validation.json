@@ -1,0 +1,44 @@
+{
+  "base/full": {
+    "simulated_stats_identical": true,
+    "config_identical": true,
+    "all_fields_controlled_across_widths": true,
+    "cycles": 1452,
+    "trace_sha256": "6db12e3242f1bfb9c214aeb9b7c7dbff06e695326cb9586604b1c30b8ae765e5"
+  },
+  "base/invocation": {
+    "simulated_stats_identical": true,
+    "config_identical": true,
+    "all_fields_controlled_across_widths": true,
+    "cycles": 1452,
+    "trace_sha256": "6db12e3242f1bfb9c214aeb9b7c7dbff06e695326cb9586604b1c30b8ae765e5"
+  },
+  "tiled2/full": {
+    "simulated_stats_identical": true,
+    "config_identical": true,
+    "all_fields_controlled_across_widths": true,
+    "cycles": 1257,
+    "trace_sha256": "5696d1c42cad74f1e8c1ffb7a07eb75641f9ed280c5644ac49f1b35f6b393388"
+  },
+  "tiled2/invocation": {
+    "simulated_stats_identical": true,
+    "config_identical": true,
+    "all_fields_controlled_across_widths": true,
+    "cycles": 1257,
+    "trace_sha256": "5696d1c42cad74f1e8c1ffb7a07eb75641f9ed280c5644ac49f1b35f6b393388"
+  },
+  "tiled4/full": {
+    "simulated_stats_identical": true,
+    "config_identical": true,
+    "all_fields_controlled_across_widths": true,
+    "cycles": 1133,
+    "trace_sha256": "386ce2649a41a647f072b9ee28fbd5bf8a17518e4f4ef95ab8d2523f1fe9024a"
+  },
+  "tiled4/invocation": {
+    "simulated_stats_identical": true,
+    "config_identical": true,
+    "all_fields_controlled_across_widths": true,
+    "cycles": 1133,
+    "trace_sha256": "386ce2649a41a647f072b9ee28fbd5bf8a17518e4f4ef95ab8d2523f1fe9024a"
+  }
+}

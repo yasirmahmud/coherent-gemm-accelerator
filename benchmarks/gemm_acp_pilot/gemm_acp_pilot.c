@@ -10,6 +10,9 @@
 #ifndef REPS
 #define REPS 1
 #endif
+#ifndef UNCHANGED_INPUT
+#define UNCHANGED_INPUT 0
+#endif
 #define BYTES (N * N * sizeof(int))
 
 #ifndef GEM5_HARNESS
@@ -71,7 +74,7 @@ int main(void) {
   int per_call_failures = 0;
 #endif
   for (int rep = 0; rep < REPS; rep++) {
-    if (REPS > 1) {
+    if (REPS > 1 && !UNCHANGED_INPUT) {
 #ifdef INDEPENDENT_MUTATION
       // A genuinely different runtime mutation than the one the trace was
       // generated with below (LLVM_TRACE always uses `A[rep % (N*N)] += 1`,
@@ -107,7 +110,7 @@ int main(void) {
   }
 #else
   for (int rep = 0; rep < REPS; rep++) {
-    if (REPS > 1)
+    if (REPS > 1 && !UNCHANGED_INPUT)
       A[rep % (N * N)] += 1;
     gemm_kernel(A, B, C);
   }

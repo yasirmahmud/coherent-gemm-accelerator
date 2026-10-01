@@ -15,3 +15,11 @@ results/**/fs/
 proposal/*
 !proposal/proposal.tex
 !proposal/proposal.pdf
+
+# Retain every file named by the completed diagnostic manifests.
+!results/diagnostics/graph_n24/**/config.json
+!results/diagnostics/warm_n24/**/config.json
+!results/diagnostics/graph_n24/**/fs/
+!results/diagnostics/graph_n24/**/fs/**
+!results/diagnostics/warm_n24/**/fs/
+!results/diagnostics/warm_n24/**/fs/**

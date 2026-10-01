@@ -1,0 +1,12 @@
+\begin{table}[htbp]\centering\small
+\begin{tabular}{rrrrrrr}\toprule
+$N$ & $w$ & Datapath (ns) & Offload (ns) & CPU speedup & FU (mm$^2$) & Memory (mm$^2$) \\ \midrule
+24 & 1 & 1452 & 2680 & 1.164 & 0.598 & 0.803 \\
+24 & 2 & 1257 & 2508 & 1.164 & 0.598 & 0.803 \\
+24 & 4 & 1133 & 2361 & 1.173 & 0.594 & 0.803 \\
+32 & 1 & 2827 & 4132 & 1.500 & 0.444 & 0.803 \\
+32 & 2 & 2268 & 3508 & 1.492 & 0.793 & 0.803 \\
+32 & 4 & 1984 & 3224 & 1.524 & 0.789 & 0.803 \\
+\bottomrule\end{tabular}
+\caption{Main width comparison: published $N=24$, recovered ece-lnx-10 cohort $N=32$. Memory and FU estimates are separate.}
+\end{table}

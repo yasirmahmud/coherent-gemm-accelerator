@@ -126,3 +126,11 @@ for the main improvement claim.
   A failed correctness or matching-stat check must not be treated as a speedup.
 - This is a legacy simulator stack pinned for reproducibility. Do not silently
   substitute a current gem5 release or LLVM version.
+
+## Completed mechanism and repeated-call diagnostics
+
+See [MECHANISM_DIAGNOSTICS.md](MECHANISM_DIAGNOSTICS.md) for isolated runners,
+passive observer definitions, strict repeated-call validation, analysis and
+paper regeneration. Historical repeated fixtures need `--expected-calls 3`;
+new outputs declare the expected count in `run.json`. The independent-mutation
+fixture must fail validation and is not a timing benchmark.

@@ -1,0 +1,7 @@
+cohort,n,width,bandwidth,completion_ticks,returned_loads,returned_stores,latency_samples,latency_mean_ticks,queue_samples,queue_mean_ticks,ruby_demand_hits,ruby_demand_misses,ruby_demand_accesses,host_return_demand_hits,host_return_demand_misses,raw
+n24_20260930,24,1,1,2442000,74,610,684,23627.001462,624,37070.512821,123,108,231,0,1,results/cache_bandwidth/n24_20260930/points/base_bw1/invocation/m5out/stats.txt
+n24_20260930,24,1,2,2267000,72,576,648,26563.165123,587,33790.459966,80,108,188,0,1,results/cache_bandwidth/n24_20260930/points/base_bw2/invocation/m5out/stats.txt
+n24_20260930,24,1,4,2180000,72,576,648,27518.756173,584,30077.054795,49,108,157,0,1,results/cache_bandwidth/n24_20260930/points/base_bw4/invocation/m5out/stats.txt
+n24_20260930,24,4,1,2306000,74,602,676,18522.403846,626,40055.910543,306,108,414,0,1,results/cache_bandwidth/n24_20260930/points/tiled4_bw1/invocation/m5out/stats.txt
+n24_20260930,24,4,2,2068000,72,577,649,19624.776579,596,31941.275168,166,108,274,0,1,results/cache_bandwidth/n24_20260930/points/tiled4_bw2/invocation/m5out/stats.txt
+n24_20260930,24,4,4,1861000,72,576,648,19915.231481,587,21778.534923,151,108,259,0,1,results/cache_bandwidth/n24_20260930/points/tiled4_bw4/invocation/m5out/stats.txt

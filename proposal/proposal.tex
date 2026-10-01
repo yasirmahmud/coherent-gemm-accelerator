@@ -1,5 +1,5 @@
 \documentclass[10pt,letterpaper]{article}
-\usepackage[margin=0.72in,headheight=12pt]{geometry}
+\usepackage[margin=0.62in,headheight=12pt]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern,microtype,amsmath,booktabs,graphicx,tikz,hyperref,titlesec}
 \usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds}
@@ -12,7 +12,7 @@
 \titleformat{\section}{\bfseries\color{navy}\normalsize}{}{0pt}{}
 \titlespacing*{\section}{0pt}{8pt}{3pt}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{3.4pt}
+\setlength{\parskip}{2.4pt}
 \setlength{\intextsep}{6pt}
 \setlength{\abovecaptionskip}{4pt}
 \pagestyle{empty}
@@ -61,7 +61,7 @@ Matrix multiplication (GEMM) exposes tradeoffs between accelerator dataflow and 
 \end{figure}
 
 \section{Mechanism and Expected Tradeoff}
-The baseline computes $C_{ij}=\sum_k A_{ik}B_{kj}$ one output at a time ($w=1$). The $w=2,4$ variants will update adjacent output sums together, sharing one loaded $A_{ik}$ across their accumulators (Fig.~2). Source-level $A$ loads decrease from $N^3$ to $N^3/w$, while the number of multiply-accumulates remains $N^3$. We will inspect optimized graph operations and cache counters separately to establish which changes reach the memory interface.
+The baseline computes $C_{ij}=\sum_k A_{ik}B_{kj}$ one output at a time ($w=1$). The $w=2,4$ variants will update adjacent output sums together, sharing one loaded $A_{ik}$ across their accumulators (Fig.~2). Source-level $A$ loads decrease from $N^3$ to $N^3/w$, while the number of multiply-accumulates remains $N^3$. We will compare optimized graph totals and measured cache counters. Operand-specific request attribution remains diagnostic work.
 
 \begin{figure}[h!]
 \centering
@@ -118,9 +118,9 @@ We will use pinned open-source gem5-Aladdin and Aladdin revisions. gem5-Aladdin 
 \caption{Planned comparison points. Each point will receive full correctness checks, datapath/offload timing, and cache-counter analysis.}
 \end{figure}
 
-\textbf{Size and correctness controls.} Integer GEMM will use deterministic inputs. At $N=32$, the three matrices occupy 12 kB, below cache capacity; compulsory, conflict, and coherence effects will still be measured. Additional $N=8,16$ comparisons ($w=1,4$) with the same kernels on the OoO CPU will test the small-workload crossover. Every point will receive a full element-by-element CPU-reference check; timing runs will use a lighter checksum outside the offload interval.
+\textbf{Size and correctness controls.} Integer GEMM will use deterministic inputs. At $N=32$, the three matrices occupy 12 kB, below cache capacity; we will report aggregate cache/coherence counters. Compulsory, capacity, conflict, and coherence attribution remains diagnostic work requiring demand-line and ownership events. Additional $N=8,16$ comparisons ($w=1,4$) with the same kernels on the OoO CPU will test the small-workload crossover. Every point will receive a full element-by-element CPU-reference check; timing runs will use a lighter checksum outside the offload interval.
 
-\textbf{Repeatability and trace limits.} We will retain raw logs, effective configurations, source/binary identities, trace hashes, and automated validation. Within each bandwidth cohort, the validator will reject missing stages, failed checks, mismatched traces/checksums, and unintended configuration changes. Separate repeated-call diagnostics will check outputs after pre-agreed CPU input mutations matched at trace time, distinguish first and later calls, and test an independent mutation to establish replay limits. These diagnostics will not imply correctness for arbitrary runtime input changes. Paired rebuilds will assess repeatability of modeled area.
+\textbf{Repeatability and trace limits.} New bandwidth cohorts will retain logs, effective configurations, source/binary identities, traces, and validation. Historical width cohorts will state missing provenance explicitly. Within each bandwidth cohort, the validator will reject missing stages, failed checks, mismatched traces/checksums, and unintended configuration changes. Separate repeated-call diagnostics will check outputs after pre-agreed CPU input mutations matched at trace time, distinguish first and later calls, and test an independent mutation to establish replay limits. These diagnostics will not imply correctness for arbitrary runtime input changes. Paired rebuilds will assess repeatability of modeled area.
 
 \section{Metrics and Analysis}
 \textbf{Timing.} The primary metric will be the CPU-observed offload interval, from a statistics reset before invocation to host return. We will separately record reset-to-accelerator-completion and completion-to-host-return segments, plus Aladdin datapath cycles converted using the 1 ns cycle. The difference between the completion interval and datapath duration will be reported as a residual, without assigning it to a specific cause. We will test whether these non-datapath intervals remain stable across the bandwidth sweep. Whole-program ticks will show whether local gains survive setup and host work.

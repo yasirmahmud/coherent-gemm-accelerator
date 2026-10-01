@@ -1,0 +1,7 @@
+{
+  "runner_exit_code": 127,
+  "failure": "Runner file was edited during Bash execution; final timestamp command was parsed at a stale file offset.",
+  "simulation_status": "All twelve stage logs contain a normal simulator exit; stage model outputs were copied.",
+  "recovery": "summarize_warm_diagnostic.py --finalize validates every retained stage, expected call counts, correctness, intervals, traces, binaries, configuration fields and timed host instructions before recording validated-at.txt.",
+  "simulations_restarted": false
+}

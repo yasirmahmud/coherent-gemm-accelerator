@@ -1,0 +1,9 @@
+\begin{table}[htbp]\centering\small
+\begin{tabular}{rrrrr}\toprule
+$w$ & Source $A$ loads & Optimized $A/B$ loads & Accepted $A/B$ loads & Accepted $C$ stores \\ \midrule
+1 & 13824 & 13824/13824 & 36/36 & 576 \\
+2 & 6912 & 6912/13824 & 36/36 & 576 \\
+4 & 3456 & 3456/13824 & 36/36 & 576 \\
+\bottomrule\end{tabular}
+\caption{Passive diagnostic, $N=24$, issue limit 4. Returned requests equal accepted requests per array.}
+\end{table}

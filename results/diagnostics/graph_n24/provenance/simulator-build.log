@@ -1,0 +1,48 @@
+scons: Reading SConscript files ...
+Warning: Warning: Your compiler doesn't support incremental linking and lto at the same time, so lto is being disabled. To force lto on anyway, use the --force-lto option. That will disable partial linking.
+Info: Using Python config: /usr/bin/python2.7-config
+Checking for C header file Python.h... (cached) yes
+Checking for C library python2.7... (cached) yes
+Checking for C library pthread... (cached) yes
+Checking for C library dl... (cached) yes
+Checking for C library util... (cached) yes
+Checking for C library m... (cached) yes
+Checking for accept(0,0,0) in C++ library None... (cached) yes
+Checking for zlibVersion() in C++ library z... (cached) yes
+Checking for GOOGLE_PROTOBUF_VERIFY_VERSION in C++ library protobuf... (cached) yes
+Checking for C header file valgrind/valgrind.h... (cached) no
+Checking for clock_nanosleep(0,0,NULL,NULL) in C library None... (cached) yes
+Checking for timer_create(CLOCK_MONOTONIC, NULL, NULL) in C library None... (cached) no
+Checking for timer_create(CLOCK_MONOTONIC, NULL, NULL) in C library rt... (cached) yes
+Checking for C library tcmalloc... (cached) no
+Checking for C library tcmalloc_minimal... (cached) no
+Warning: You can get a 12% performance improvement by installing tcmalloc (libgoogle-perftools-dev package on Ubuntu or RedHat).
+Checking for C library readline... (cached) yes
+Checking for char temp; backtrace_symbols_fd((void*)&temp, 0, 0) in C library None... (cached) yes
+Checking for C library sqlite3... (cached) yes
+Checking for C header file fenv.h... (cached) yes
+Checking for C header file png.h... (cached) no
+Warning: Header file <png.h> not found.
+         This host has no libpng library.
+         Disabling support for PNG framebuffers.
+Checking for C header file linux/kvm.h... (cached) yes
+Checking for C header file linux/if_tun.h... (cached) yes
+Checking size of struct kvm_xsave ... (cached) yes
+Checking for member exclude_host in struct perf_event_attr...(cached) yes
+Checking for hdf5-serial using pkg-config... pkg-config not found
+Checking for hdf5 using pkg-config... pkg-config not found
+Checking for H5Fcreate("", 0, 0, 0) in C library hdf5... (cached) no
+Warning: Couldn't find any HDF5 C++ libraries. Disabling
+         HDF5 support.
+Checking whether __i386__ is declared... (cached) no
+Checking whether __x86_64__ is declared... (cached) yes
+Building in /worksrc/build/X86
+Using saved variables file /worksrc/build/variables/X86
+scons: done reading SConscript files.
+scons: Building targets ...
+ [VER TAGS]  -> X86/sim/tags.cc
+ [     CXX] X86/aladdin/gem5/HybridDatapath.cpp -> .o
+ [    LINK]  -> X86/aladdin/gem5/lib.o.partial
+ [     CXX] X86/base/date.cc -> .o
+ [    LINK]  -> X86/gem5.opt
+scons: done building targets.

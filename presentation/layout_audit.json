@@ -1,0 +1,1919 @@
+[
+  {
+    "slide": 1,
+    "title": "A complete framework for coherent GEMM tradeoffs",
+    "text_boxes": [
+      {
+        "text": "Coherent GEMM Accelerator",
+        "x": 0.85,
+        "y": 1.3,
+        "w": 11.6,
+        "h": 0.7472222222222222,
+        "size": 40,
+        "lines": 1
+      },
+      {
+        "text": "A complete framework for studying\nperformance\u2013resource tradeoffs",
+        "x": 0.85,
+        "y": 2.32,
+        "w": 11.6,
+        "h": 1.0861111111111112,
+        "size": 30,
+        "lines": 2
+      },
+      {
+        "text": "Yasir Mahmud \u00b7 Rasin Mohammed Ihtemam \u00b7 Mohyeu Hussain",
+        "x": 0.85,
+        "y": 4.04,
+        "w": 11.6,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Implemented kernels, host integration, simulator extensions,\nautomated experiments, validation, and analysis.",
+        "x": 0.85,
+        "y": 5.01,
+        "w": 11.6,
+        "h": 0.8827777777777778,
+        "size": 24,
+        "lines": 2
+      },
+      {
+        "text": "Completed study \u00b7 simulation engine: gem5-Aladdin",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "1",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 2,
+    "title": "The tradeoff: useful parallelism versus resource cost",
+    "text_boxes": [
+      {
+        "text": "The tradeoff: useful parallelism versus resource cost",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Width w is the number of output columns computed together.",
+        "x": 0.88,
+        "y": 1.6,
+        "w": 11.54,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "Narrow: w = 1",
+        "x": 0.98,
+        "y": 2.23,
+        "w": 4.2,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "Wider: w = 4",
+        "x": 6.12,
+        "y": 2.23,
+        "w": 6.2,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "one A",
+        "x": 1.12,
+        "y": 3.15,
+        "w": 1.2,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "one sum",
+        "x": 3.25,
+        "y": 3.15,
+        "w": 1.26,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "one A",
+        "x": 6.18,
+        "y": 3.15,
+        "w": 1.2,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "sum 1",
+        "x": 8.139999999999999,
+        "y": 3.18,
+        "w": 0.86,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "sum 2",
+        "x": 9.239999999999998,
+        "y": 3.18,
+        "w": 0.86,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "sum 3",
+        "x": 10.34,
+        "y": 3.18,
+        "w": 0.86,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "sum 4",
+        "x": 11.44,
+        "y": 3.18,
+        "w": 0.86,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "Potential benefit",
+        "x": 0.98,
+        "y": 4.6,
+        "w": 5.35,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Fewer repeated input operations\nMore independent arithmetic",
+        "x": 0.98,
+        "y": 5.08,
+        "w": 5.35,
+        "h": 0.8488888888888888,
+        "size": 23,
+        "lines": 2
+      },
+      {
+        "text": "Cost and system constraints",
+        "x": 6.62,
+        "y": 4.6,
+        "w": 5.7,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "More live sums and resource demand\nSpeedup depends on the full system",
+        "x": 6.62,
+        "y": 5.08,
+        "w": 5.7,
+        "h": 0.8488888888888888,
+        "size": 23,
+        "lines": 2
+      },
+      {
+        "text": "We measure latency, modeled area, and whole-program time together.",
+        "x": 0.98,
+        "y": 6.34,
+        "w": 11.45,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "Width changes the dataflow; it does not guarantee faster execution in every invocation or workload",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "2",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 3,
+    "title": "Notation: matrix size, tile width, and issue limit",
+    "text_boxes": [
+      {
+        "text": "Notation: matrix size, tile width, and issue limit",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "A and B are the inputs; C = A \u00d7 B is the output. Each matrix has N rows and N columns.",
+        "x": 0.86,
+        "y": 1.56,
+        "w": 11.62,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "A: input",
+        "x": 1.33,
+        "y": 2.31,
+        "w": 2.36,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "B: input",
+        "x": 5.23,
+        "y": 2.31,
+        "w": 2.36,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "C: output",
+        "x": 9.43,
+        "y": 2.31,
+        "w": 2.36,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "\u00d7",
+        "x": 4.02,
+        "y": 3.39,
+        "w": 0.6,
+        "h": 0.5777777777777778,
+        "size": 30,
+        "lines": 1
+      },
+      {
+        "text": "=",
+        "x": 8.22,
+        "y": 3.39,
+        "w": 0.6,
+        "h": 0.5777777777777778,
+        "size": 30,
+        "lines": 1
+      },
+      {
+        "text": "N=8\nrows",
+        "x": 0.75,
+        "y": 3.3,
+        "w": 0.48,
+        "h": 0.5438888888888889,
+        "size": 14,
+        "lines": 2
+      },
+      {
+        "text": "N = 8 columns",
+        "x": 1.43,
+        "y": 4.97,
+        "w": 2.16,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "8 \u00d7 8",
+        "x": 5.45,
+        "y": 4.97,
+        "w": 1.92,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "w = 4 output columns together",
+        "x": 8.74,
+        "y": 4.97,
+        "w": 3.82,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "Lowercase b limits requests per cycle; uppercase B is a matrix.",
+        "x": 0.86,
+        "y": 5.57,
+        "w": 11.62,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Request queue",
+        "x": 1.08,
+        "y": 6.25,
+        "w": 2.46,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "Cache",
+        "x": 5.37,
+        "y": 6.25,
+        "w": 1.99,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "b = 2: at most two requests\nissued in one accelerator cycle",
+        "x": 8.0,
+        "y": 6.13,
+        "w": 4.46,
+        "h": 0.6455555555555555,
+        "size": 17,
+        "lines": 2
+      },
+      {
+        "text": "Illustrative N=8 grid; the issue-limit setting b is independent of tile width w",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "3",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 4,
+    "title": "We built the complete experimental framework",
+    "text_boxes": [
+      {
+        "text": "We built the complete experimental framework",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Project-specific implementation, from accelerator kernels to validated design comparisons.",
+        "x": 0.88,
+        "y": 1.6,
+        "w": 11.54,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "CPU + host harness",
+        "x": 1.02,
+        "y": 2.48,
+        "w": 2.6999999999999997,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Invoke \u00b7 time \u00b7 verify",
+        "x": 1.02,
+        "y": 2.95,
+        "w": 2.6999999999999997,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "Ruby coherence",
+        "x": 5.14,
+        "y": 2.48,
+        "w": 2.8499999999999996,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Shared L2 + DRAM",
+        "x": 5.14,
+        "y": 2.95,
+        "w": 2.8499999999999996,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "GEMM accelerator",
+        "x": 9.52,
+        "y": 2.48,
+        "w": 2.8,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Datapath + coherent cache",
+        "x": 9.52,
+        "y": 2.95,
+        "w": 2.8,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "32 kB coherent cache \u00b7 bounded 32-entry request queue \u00b7 resource-constrained scheduling",
+        "x": 0.92,
+        "y": 3.66,
+        "w": 11.5,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "Kernels",
+        "x": 0.94,
+        "y": 4.43,
+        "w": 2.72,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "Baseline + two wider\nGEMM implementations",
+        "x": 0.94,
+        "y": 4.99,
+        "w": 2.72,
+        "h": 0.6794444444444445,
+        "size": 18,
+        "lines": 2
+      },
+      {
+        "text": "Host harnesses",
+        "x": 3.91,
+        "y": 4.43,
+        "w": 2.72,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "CPU reference checks\nSegmented timing\nRepeated invocations",
+        "x": 3.91,
+        "y": 4.99,
+        "w": 2.72,
+        "h": 0.9844444444444443,
+        "size": 18,
+        "lines": 3
+      },
+      {
+        "text": "Simulator",
+        "x": 6.880000000000001,
+        "y": 4.43,
+        "w": 2.72,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "Queue / retry integration\nPassive graph + request\ninstrumentation",
+        "x": 6.880000000000001,
+        "y": 4.99,
+        "w": 2.72,
+        "h": 0.9844444444444443,
+        "size": 18,
+        "lines": 3
+      },
+      {
+        "text": "Experiment tools",
+        "x": 9.85,
+        "y": 4.43,
+        "w": 2.72,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "Isolated run automation\nConfiguration validation\nGenerated plots + tables",
+        "x": 9.85,
+        "y": 4.99,
+        "w": 2.72,
+        "h": 0.9844444444444443,
+        "size": 18,
+        "lines": 3
+      },
+      {
+        "text": "Built on gem5-Aladdin; project contributions include kernels, harnesses, simulator extensions, and analysis",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "4",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 5,
+    "title": "A completed study across five experiment families",
+    "text_boxes": [
+      {
+        "text": "A completed study across five experiment families",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Each experiment family answers a different part of the design question.",
+        "x": 0.88,
+        "y": 1.6,
+        "w": 11.54,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Experiment family",
+        "x": 1.0,
+        "y": 2.42,
+        "w": 2.91,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "What we established",
+        "x": 4.15,
+        "y": 2.42,
+        "w": 7.0,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "Runs",
+        "x": 11.389999999999999,
+        "y": 2.42,
+        "w": 0.9099999999999999,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "Dataflow + workload",
+        "x": 1.0,
+        "y": 2.9780555555555557,
+        "w": 2.91,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Three widths across four matrix sizes",
+        "x": 4.15,
+        "y": 2.9780555555555557,
+        "w": 7.0,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "60",
+        "x": 11.389999999999999,
+        "y": 2.9780555555555557,
+        "w": 0.9099999999999999,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Memory interface",
+        "x": 1.0,
+        "y": 3.5680555555555555,
+        "w": 2.91,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "How request capacity changes the width benefit",
+        "x": 4.15,
+        "y": 3.5680555555555555,
+        "w": 7.0,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "20",
+        "x": 11.389999999999999,
+        "y": 3.5680555555555555,
+        "w": 0.9099999999999999,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Mechanism observer",
+        "x": 1.0,
+        "y": 4.158055555555555,
+        "w": 2.91,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Graph operations versus actual cache requests",
+        "x": 4.15,
+        "y": 4.158055555555555,
+        "w": 7.0,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "12",
+        "x": 11.389999999999999,
+        "y": 4.158055555555555,
+        "w": 0.9099999999999999,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Repeated invocations",
+        "x": 1.0,
+        "y": 4.748055555555555,
+        "w": 2.91,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "How execution history changes performance",
+        "x": 4.15,
+        "y": 4.748055555555555,
+        "w": 7.0,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "12",
+        "x": 11.389999999999999,
+        "y": 4.748055555555555,
+        "w": 0.9099999999999999,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Input boundary checks",
+        "x": 1.0,
+        "y": 5.338055555555555,
+        "w": 2.91,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Which input changes the trace model supports",
+        "x": 4.15,
+        "y": 5.338055555555555,
+        "w": 7.0,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "3",
+        "x": 11.389999999999999,
+        "y": 5.338055555555555,
+        "w": 0.9099999999999999,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "107 simulator executions, with retained inputs, programs, traces, checks, and results.",
+        "x": 0.98,
+        "y": 6.34,
+        "w": 11.43,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Complete fresh experiment suite; observer/reference pairs and correctness outcomes validated",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "5",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 6,
+    "title": "The latency\u2013area tradeoff changes with workload size",
+    "text_boxes": [
+      {
+        "text": "The latency\u2013area tradeoff changes with workload size",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Offload latency (\u00b5s)",
+        "x": 0.92,
+        "y": 1.53,
+        "w": 6.9,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "2.5",
+        "x": 0.97,
+        "y": 5.076666666666667,
+        "w": 0.5,
+        "h": 0.3236111111111111,
+        "size": 15,
+        "lines": 1
+      },
+      {
+        "text": "3.0",
+        "x": 0.97,
+        "y": 4.3975,
+        "w": 0.5,
+        "h": 0.3236111111111111,
+        "size": 15,
+        "lines": 1
+      },
+      {
+        "text": "3.5",
+        "x": 0.97,
+        "y": 3.7183333333333333,
+        "w": 0.5,
+        "h": 0.3236111111111111,
+        "size": 15,
+        "lines": 1
+      },
+      {
+        "text": "4.0",
+        "x": 0.97,
+        "y": 3.0391666666666666,
+        "w": 0.5,
+        "h": 0.3236111111111111,
+        "size": 15,
+        "lines": 1
+      },
+      {
+        "text": "4.5",
+        "x": 0.97,
+        "y": 2.36,
+        "w": 0.5,
+        "h": 0.3236111111111111,
+        "size": 15,
+        "lines": 1
+      },
+      {
+        "text": "1.2",
+        "x": 1.996363636363637,
+        "y": 5.9,
+        "w": 0.5,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "1.4",
+        "x": 4.261818181818182,
+        "y": 5.9,
+        "w": 0.5,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "1.6",
+        "x": 6.527272727272729,
+        "y": 5.9,
+        "w": 0.5,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "N = 24",
+        "x": 2.59,
+        "y": 2.03,
+        "w": 1.42,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "w=1",
+        "x": 4.646996727272729,
+        "y": 4.620925000000001,
+        "w": 0.63,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "w=2",
+        "x": 4.646996727272729,
+        "y": 5.1458,
+        "w": 0.63,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "w=4",
+        "x": 3.865004545454546,
+        "y": 5.384233333333334,
+        "w": 0.63,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "N = 32",
+        "x": 4.97,
+        "y": 2.03,
+        "w": 1.42,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "w=1",
+        "x": 2.198292363636365,
+        "y": 2.3735166666666663,
+        "w": 0.63,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "w=2",
+        "x": 6.854908727272728,
+        "y": 3.697466666666667,
+        "w": 0.63,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "w=4",
+        "x": 6.8093730909090935,
+        "y": 4.083233333333333,
+        "w": 0.63,
+        "h": 0.34055555555555556,
+        "size": 16,
+        "lines": 1
+      },
+      {
+        "text": "Modeled total area (mm\u00b2)",
+        "x": 1.75,
+        "y": 6.3,
+        "w": 6.1,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "N = 24: w=4 vs. w=1",
+        "x": 8.73,
+        "y": 1.97,
+        "w": 3.8,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "11.8% shorter offload\n0.33% less modeled area",
+        "x": 8.73,
+        "y": 2.56,
+        "w": 3.8,
+        "h": 0.815,
+        "size": 22,
+        "lines": 2
+      },
+      {
+        "text": "N = 32: w=4 vs. w=1",
+        "x": 8.73,
+        "y": 3.9,
+        "w": 3.8,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "25.1% shorter offload\n27.7% more modeled area",
+        "x": 8.73,
+        "y": 4.49,
+        "w": 3.8,
+        "h": 0.815,
+        "size": 22,
+        "lines": 2
+      },
+      {
+        "text": "Compact w=1 or faster w=4:\nthe choice depends on cost.",
+        "x": 8.73,
+        "y": 5.85,
+        "w": 3.8,
+        "h": 0.6794444444444445,
+        "size": 18,
+        "lines": 2
+      },
+      {
+        "text": "Lower and farther left is preferable \u00b7 modeled area is pre-RTL \u00b7 widths compared within each N",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "6",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 7,
+    "title": "A wider design can also take longer to execute",
+    "text_boxes": [
+      {
+        "text": "A wider design can also take longer to execute",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "N = 24 \u00b7 unchanged inputs \u00b7 timed repeated-call experiment \u00b7 offload time (\u00b5s)",
+        "x": 0.88,
+        "y": 1.6,
+        "w": 11.54,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Invocation",
+        "x": 1.1,
+        "y": 2.55,
+        "w": 3.0599999999999996,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "w = 1",
+        "x": 4.3999999999999995,
+        "y": 2.55,
+        "w": 2.46,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "w = 2",
+        "x": 7.1,
+        "y": 2.55,
+        "w": 2.46,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "w = 4",
+        "x": 9.799999999999999,
+        "y": 2.55,
+        "w": 2.46,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "First",
+        "x": 1.1,
+        "y": 3.1927777777777777,
+        "w": 3.0599999999999996,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "2.681",
+        "x": 4.3999999999999995,
+        "y": 3.1927777777777777,
+        "w": 2.46,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "2.486",
+        "x": 7.1,
+        "y": 3.1927777777777777,
+        "w": 2.46,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "2.362",
+        "x": 9.799999999999999,
+        "y": 3.1927777777777777,
+        "w": 2.46,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "Second",
+        "x": 1.1,
+        "y": 3.952777777777778,
+        "w": 3.0599999999999996,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "0.819",
+        "x": 4.3999999999999995,
+        "y": 3.952777777777778,
+        "w": 2.46,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "0.819",
+        "x": 7.1,
+        "y": 3.952777777777778,
+        "w": 2.46,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "0.838",
+        "x": 9.799999999999999,
+        "y": 3.952777777777778,
+        "w": 2.46,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "First invocation: width 4 takes 11.9% less time than width 1.",
+        "x": 1.1,
+        "y": 4.94,
+        "w": 11.2,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "Second invocation: width 4 takes 2.3% more time than width 1.",
+        "x": 1.1,
+        "y": 5.61,
+        "w": 11.2,
+        "h": 0.4930555555555556,
+        "size": 25,
+        "lines": 1
+      },
+      {
+        "text": "The same workload can favor different designs as invocation history changes.",
+        "x": 1.1,
+        "y": 6.37,
+        "w": 11.2,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Matched timed harness; these are observed diagnostic outcomes, not a general warm-cache scaling law",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "7",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 8,
+    "title": "The memory interface and host set the useful gain",
+    "text_boxes": [
+      {
+        "text": "The memory interface and host set the useful gain",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Request interface \u00b7 N = 24",
+        "x": 0.94,
+        "y": 1.65,
+        "w": 5.86,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Width-4 offload benefit (%)",
+        "x": 0.94,
+        "y": 2.2,
+        "w": 5.86,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "0",
+        "x": 0.99,
+        "y": 5.37,
+        "w": 0.4,
+        "h": 0.3236111111111111,
+        "size": 15,
+        "lines": 1
+      },
+      {
+        "text": "6",
+        "x": 0.99,
+        "y": 4.264285714285714,
+        "w": 0.4,
+        "h": 0.3236111111111111,
+        "size": 15,
+        "lines": 1
+      },
+      {
+        "text": "12",
+        "x": 0.99,
+        "y": 3.158571428571429,
+        "w": 0.4,
+        "h": 0.3236111111111111,
+        "size": 15,
+        "lines": 1
+      },
+      {
+        "text": "4.6%",
+        "x": 1.6099999999999999,
+        "y": 4.2147097085039755,
+        "w": 0.76,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "1",
+        "x": 1.79,
+        "y": 5.66,
+        "w": 0.4,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "7.1%",
+        "x": 2.91,
+        "y": 3.745560675883256,
+        "w": 0.76,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "2",
+        "x": 3.09,
+        "y": 5.66,
+        "w": 0.4,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "11.8%",
+        "x": 5.510000000000001,
+        "y": 2.885114951641034,
+        "w": 0.76,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "4",
+        "x": 5.69,
+        "y": 5.66,
+        "w": 0.4,
+        "h": 0.3575,
+        "size": 17,
+        "lines": 1
+      },
+      {
+        "text": "Issue limit b (requests/cycle)",
+        "x": 1.09,
+        "y": 6.07,
+        "w": 5.53,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "Application impact \u00b7 N = 32",
+        "x": 7.43,
+        "y": 1.65,
+        "w": 5.04,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Reduction from w=1 to w=4",
+        "x": 7.43,
+        "y": 2.2,
+        "w": 5.04,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "Datapath",
+        "x": 7.43,
+        "y": 3.2,
+        "w": 1.66,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "29.8%",
+        "x": 11.49,
+        "y": 3.1900000000000004,
+        "w": 0.97,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "Offload",
+        "x": 7.43,
+        "y": 4.23,
+        "w": 1.66,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "25.1%",
+        "x": 11.49,
+        "y": 4.220000000000001,
+        "w": 0.97,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "Program",
+        "x": 7.43,
+        "y": 5.26,
+        "w": 1.66,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "0.41%",
+        "x": 11.49,
+        "y": 5.25,
+        "w": 0.97,
+        "h": 0.3913888888888889,
+        "size": 19,
+        "lines": 1
+      },
+      {
+        "text": "Measure the benefit delivered by the full system.",
+        "x": 0.98,
+        "y": 6.48,
+        "w": 11.43,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Issue-limit sweep uses N=24 matched baselines; application reductions use the N=32 main sweep",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "8",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 9,
+    "title": "What our completed study established",
+    "text_boxes": [
+      {
+        "text": "What our completed study established",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Framework",
+        "x": 0.98,
+        "y": 1.92,
+        "w": 2.2,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "Implemented and validated the full path from GEMM kernels\nto coherent-system timing, cost, and analysis.",
+        "x": 3.36,
+        "y": 1.92,
+        "w": 9.0,
+        "h": 0.815,
+        "size": 22,
+        "lines": 2
+      },
+      {
+        "text": "Tradeoff",
+        "x": 0.98,
+        "y": 3.3499999999999996,
+        "w": 2.2,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "At N=32: 25.1% shorter offload with 27.7% more modeled area.\nAt N=24: the wider design is faster and slightly smaller.",
+        "x": 3.36,
+        "y": 3.3499999999999996,
+        "w": 9.0,
+        "h": 0.815,
+        "size": 22,
+        "lines": 2
+      },
+      {
+        "text": "Design choice",
+        "x": 0.98,
+        "y": 4.779999999999999,
+        "w": 2.2,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "Width 4 is 2.3% slower on the second call in our diagnostic.\nWidth, workload, memory interface, and history must be evaluated together.",
+        "x": 3.36,
+        "y": 4.779999999999999,
+        "w": 9.0,
+        "h": 1.1877777777777778,
+        "size": 22,
+        "lines": 3
+      },
+      {
+        "text": "Choose the dataflow using latency, cost, and application benefit together.",
+        "x": 0.98,
+        "y": 6.3,
+        "w": 11.43,
+        "h": 0.4591666666666667,
+        "size": 23,
+        "lines": 1
+      },
+      {
+        "text": "Completed coherent-GEMM framework and study \u00b7 powered by gem5-Aladdin",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "9",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 10,
+    "title": "Fewer graph loads do not imply fewer cache requests",
+    "text_boxes": [
+      {
+        "text": "Fewer graph loads do not imply fewer cache requests",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Passive graph and request observer \u00b7 N = 24 \u00b7 b = 4",
+        "x": 0.88,
+        "y": 1.62,
+        "w": 11.55,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Tile width",
+        "x": 1.2200000000000002,
+        "y": 2.35,
+        "w": 2.5599999999999996,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Source / optimized\nA loads",
+        "x": 4.02,
+        "y": 2.35,
+        "w": 4.56,
+        "h": 0.7811111111111111,
+        "size": 21,
+        "lines": 2
+      },
+      {
+        "text": "Accepted\nA requests",
+        "x": 8.819999999999999,
+        "y": 2.35,
+        "w": 3.16,
+        "h": 0.7811111111111111,
+        "size": 21,
+        "lines": 2
+      },
+      {
+        "text": "w = 1",
+        "x": 1.2200000000000002,
+        "y": 3.331666666666667,
+        "w": 2.5599999999999996,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "13,824",
+        "x": 4.02,
+        "y": 3.331666666666667,
+        "w": 4.56,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "36",
+        "x": 8.819999999999999,
+        "y": 3.331666666666667,
+        "w": 3.16,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "w = 2",
+        "x": 1.2200000000000002,
+        "y": 3.991666666666667,
+        "w": 2.5599999999999996,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "6,912",
+        "x": 4.02,
+        "y": 3.991666666666667,
+        "w": 4.56,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "36",
+        "x": 8.819999999999999,
+        "y": 3.991666666666667,
+        "w": 3.16,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "w = 4",
+        "x": 1.2200000000000002,
+        "y": 4.651666666666666,
+        "w": 2.5599999999999996,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "3,456",
+        "x": 4.02,
+        "y": 4.651666666666666,
+        "w": 4.56,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "36",
+        "x": 8.819999999999999,
+        "y": 4.651666666666666,
+        "w": 3.16,
+        "h": 0.47611111111111115,
+        "size": 24,
+        "lines": 1
+      },
+      {
+        "text": "B requests and C stores also remain unchanged: 36 loads and 576 stores.",
+        "x": 1.1,
+        "y": 5.5,
+        "w": 11.0,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "The queue merges loads to the same cache line.",
+        "x": 1.1,
+        "y": 6.05,
+        "w": 11.0,
+        "h": 0.4591666666666667,
+        "size": 23,
+        "lines": 1
+      },
+      {
+        "text": "Observer and reference simulated statistics match \u00b7 accepted requests equal returned requests per array",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "Appendix 1",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 11,
+    "title": "Appendix: measurement definitions",
+    "text_boxes": [
+      {
+        "text": "Appendix: measurement definitions",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Offload time",
+        "x": 0.9,
+        "y": 1.91,
+        "w": 2.37,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Reset before invocation \u2192 completion \u2192 host return.",
+        "x": 3.4,
+        "y": 1.91,
+        "w": 8.96,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Datapath time",
+        "x": 0.9,
+        "y": 2.78,
+        "w": 2.37,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Modeled datapath cycles \u00d7 1 ns.",
+        "x": 3.4,
+        "y": 2.78,
+        "w": 8.96,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Program time",
+        "x": 0.9,
+        "y": 3.65,
+        "w": 2.37,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Whole-program execution, including setup and host work.",
+        "x": 3.4,
+        "y": 3.65,
+        "w": 8.96,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Modeled area",
+        "x": 0.9,
+        "y": 4.52,
+        "w": 2.37,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Functional-unit + memory estimates before RTL.",
+        "x": 3.4,
+        "y": 4.52,
+        "w": 8.96,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Issue limit b",
+        "x": 0.9,
+        "y": 5.39,
+        "w": 2.37,
+        "h": 0.4083333333333333,
+        "size": 20,
+        "lines": 1
+      },
+      {
+        "text": "Allowed requests per accelerator cycle; cache capacity is fixed.",
+        "x": 3.4,
+        "y": 5.39,
+        "w": 8.96,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "The 107 executions cover different experiments; they are not statistical repetitions.",
+        "x": 0.9,
+        "y": 6.45,
+        "w": 11.4,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "Source selection: paper/experiment_data.json \u00b7 complete data paths in speaker notes",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "Appendix 2",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  },
+  {
+    "slide": 12,
+    "title": "Appendix: repeated-call correctness and scope",
+    "text_boxes": [
+      {
+        "text": "Appendix: repeated-call correctness and scope",
+        "x": 0.72,
+        "y": 0.52,
+        "w": 11.9,
+        "h": 0.5608333333333334,
+        "size": 29,
+        "lines": 1
+      },
+      {
+        "text": "Input case",
+        "x": 1.0,
+        "y": 2.09,
+        "w": 3.3,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "Validated outcome",
+        "x": 4.54,
+        "y": 2.09,
+        "w": 7.76,
+        "h": 0.37444444444444447,
+        "size": 18,
+        "lines": 1
+      },
+      {
+        "text": "Matched to trace",
+        "x": 1.0,
+        "y": 2.665,
+        "w": 3.3,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Every per-call checker output passes at widths 1, 2, and 4.",
+        "x": 4.54,
+        "y": 2.665,
+        "w": 7.76,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "Independent mutations",
+        "x": 1.0,
+        "y": 3.565,
+        "w": 3.3,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "20 / 24 / 19 mismatches across calls at every width.",
+        "x": 4.54,
+        "y": 3.565,
+        "w": 7.76,
+        "h": 0.4252777777777778,
+        "size": 21,
+        "lines": 1
+      },
+      {
+        "text": "The main-slide reversal uses unchanged inputs in the timed harness.",
+        "x": 0.98,
+        "y": 4.88,
+        "w": 11.3,
+        "h": 0.44222222222222224,
+        "size": 22,
+        "lines": 1
+      },
+      {
+        "text": "\u2022 Timed repeated runs check the final output.\n\u2022 Intermediate timed outputs are not individually checked.\n\u2022 Checker timing has a different cache history from the timed harness.",
+        "x": 0.98,
+        "y": 5.52,
+        "w": 11.3,
+        "h": 1.0861111111111112,
+        "size": 20,
+        "lines": 3
+      },
+      {
+        "text": "Input-boundary tests completed; unsupported mutations are excluded from performance comparisons",
+        "x": 0.72,
+        "y": 7.02,
+        "w": 10.8,
+        "h": 0.22194444444444444,
+        "size": 9,
+        "lines": 1
+      },
+      {
+        "text": "Appendix 3",
+        "x": 11.55,
+        "y": 7.02,
+        "w": 1.06,
+        "h": 0.23888888888888887,
+        "size": 10,
+        "lines": 1
+      }
+    ]
+  }
+]
